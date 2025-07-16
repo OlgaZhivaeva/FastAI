@@ -83,8 +83,8 @@ wheels = [
 ]
 
 [[package]]
-name = "fastai-starter"
-version = "0.1.0"
+name = "fastai"
+version = "0.0.1"
 source = { virtual = "." }
 dependencies = [
     { name = "editorconfig-checker" },

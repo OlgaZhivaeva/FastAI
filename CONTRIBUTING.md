@@ -1,5 +1,7 @@
 # Разработчикам бэкенда
 
+[TOC]
+
 ## Как развернуть local-окружение
 
 ### Необходимое ПО
@@ -119,3 +121,11 @@ lint                      Проверяет линтерами код в реп
 format                    Автоматически исправляет форматирование кода -- порядок импортов, лишние пробелы и т.д.
 help                      Отображает список доступных команд и их описания
 ```
+
+## Схемы приложения FastAI
+
+[Схема локальной инсталляции бэкенда](https://gitlab.dvmn.org/root/fastapi-articles/-/wikis/fastai/backend_local_installation.drawio.png)
+
+[Схема продовой инсталляции бэкенда](https://gitlab.dvmn.org/root/fastapi-articles/-/wikis/fastai/backend_prod_installation.drawio.png)
+
+[Схема подсистем бэкенда](https://gitlab.dvmn.org/root/fastapi-articles/-/wikis/fastai/backend_decomposition.drawio.png)
