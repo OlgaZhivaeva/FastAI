@@ -1,27 +1,21 @@
-import asyncio
-from collections.abc import AsyncGenerator
-from itertools import count
+from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+
+FRONTEND_DIR = Path(__file__).parent / "frontend"
+STATIC_FILES_DIR = Path(__file__).parent / "static"
 
 app = FastAPI()
 
+app.mount(
+    "/static",
+    StaticFiles(directory=STATIC_FILES_DIR),
+    name="static-files",
+)
 
-@app.get("/")
-async def get_data() -> dict[str, str]:
-    return {"greeting": "Hello World!!"}
-
-
-async def generate_counter() -> AsyncGenerator[str, None]:
-    for number in count():
-        yield f"<h1>{number}\n</h1>"
-        await asyncio.sleep(1)
-
-
-@app.get("/counter", response_class=HTMLResponse)
-async def stream_counter() -> StreamingResponse:
-    return StreamingResponse(
-        generate_counter(),
-        media_type="text/html",
-    )
+app.mount(
+    "/",
+    StaticFiles(directory=FRONTEND_DIR, html=True),
+    name="frontend",
+)
