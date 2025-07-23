@@ -1,6 +1,5 @@
 # Разработчикам бэкенда
 
-[TOC]
 
 ## Как развернуть local-окружение
 
@@ -129,3 +128,12 @@ help                      Отображает список доступных �
 [Схема продовой инсталляции бэкенда](https://gitlab.dvmn.org/root/fastapi-articles/-/wikis/fastai/backend_prod_installation.drawio.png)
 
 [Схема подсистем бэкенда](https://gitlab.dvmn.org/root/fastapi-articles/-/wikis/fastai/backend_decomposition.drawio.png)
+
+
+## Как развернуть фронтенд локально
+
+Скачайте и распакуйте [архив с фронтендом](https://dvmn.org/filer/canonical/1750917110/1035/) в папку `src`
+
+Статья [“FastAPI Static Files”](https://gitlab.dvmn.org/root/fastapi-articles/-/wikis/FastAPI-StaticFiles)
+
+Инструкция [“Подключение фронтенда FastAI”](https://dvmn.org/media/filer_public/75/58/75589766-7278-4db0-9f2a-7a82a488a500/readme.html)
