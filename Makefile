@@ -4,7 +4,7 @@ lint: ## Проверяет линтерами код в репозитории
 format: ## Запуск автоформатера
 	ruff check --fix ./src
 
-validate-example: ## Проверяет корректность примера в схеме Pydantic модели
+validate-example: ## Проверяет корректность примеров в схеме Pydantic моделей
 	python ./src/validate_example.py
 
 help: ## Отображает список доступных команд и их описания
