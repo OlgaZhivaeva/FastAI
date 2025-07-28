@@ -1,9 +1,13 @@
+import asyncio
 from pathlib import Path
 
+import aiofiles
 from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import HTMLResponse
 
-from models import SiteRequest, SiteResponse, UserProfile
+from models import CreateSiteResponse, SiteRequest, UserProfile
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
 
@@ -33,7 +37,7 @@ def mock_get_user():
     summary="Создать сайт",
     response_description="Данные для генерации сайта",
     tags=["Sites"],
-    response_model=SiteResponse,
+    response_model=CreateSiteResponse,
 )
 def mock_create_site(site: SiteRequest):
     return {
@@ -46,6 +50,27 @@ def mock_create_site(site: SiteRequest):
         "title": site.title,
         "updated_at": "2025-01-01T12:00:00",
     }
+
+
+@app.post(
+    "/frontend-api/sites/{site_id}/generate",
+    summary="Сгенерировать HTML код сайта",
+    response_description="HTML код сайта",
+    tags=["Sites"],
+    response_class=HTMLResponse,
+
+)
+async def mock_generate_html(site_id: int):
+    async def html_generator():
+        async with aiofiles.open("src/index.html", "rb") as f:
+            while True:
+                chunk = await f.read(1024)
+                if not chunk:
+                    break
+                yield chunk
+                await asyncio.sleep(1)
+
+    return StreamingResponse(html_generator(), media_type="text/html")
 
 
 app.mount(

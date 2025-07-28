@@ -5,6 +5,7 @@ description = "FastAI Repository for backend developers."
 readme = "README.md"
 requires-python = "==3.13.*"
 dependencies = [
+    "aiofiles>=24.1.0",
     "editorconfig-checker==3.2.1",
     "fastapi[standard]==0.115.12",
     "mypy>=1.17.0",
