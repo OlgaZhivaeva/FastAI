@@ -33,6 +33,26 @@ def mock_get_user():
 
 
 @app.get(
+    "/frontend-api/sites/my",
+    summary="Получить список сайтов пользователя",
+    response_description="Сайты пользователя",
+    tags=["Sites"],
+    response_model=SiteResponse,
+)
+def mock_get_user_sits():
+    return {
+        "created_at": "2025-06-15T18:29:56+00:00",
+        "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
+        "html_code_url": "http://example.com/media/index.html",
+        "id": 1,
+        "prompt": "Сайт любителей играть в домино",
+        "screenshot_url": "http://example.com/media/index.png",
+        "title": "Фан клуб Домино",
+        "updated_at": "2025-06-15T18:29:56+00:00",
+    }
+
+
+@app.get(
     "/frontend-api/sites/{site_id}",
     summary="Получить сайт",
     response_description="Данные сайта",
