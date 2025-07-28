@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import HTMLResponse
 
-from models import SiteRequest, SiteResponse, UserProfile
+from models import SiteGenerationRequest, SiteRequest, SiteResponse, UserProfile
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
 
@@ -100,7 +100,7 @@ def mock_create_site(site: SiteRequest):
     response_class=HTMLResponse,
 
 )
-async def mock_generate_html(site_id: int):
+async def mock_generate_html(site_id: int, request: SiteGenerationRequest):
     async def html_generator():
         async with aiofiles.open("src/index.html", "rb") as f:
             while True:

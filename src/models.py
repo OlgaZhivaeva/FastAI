@@ -79,3 +79,8 @@ class SiteRequest(BaseModel):
     """Промпт"""
     title: str
     """Название сайта"""
+
+
+class SiteGenerationRequest(BaseModel):
+    prompt: str
+    """Промпт"""
