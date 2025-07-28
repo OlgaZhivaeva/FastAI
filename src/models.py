@@ -39,7 +39,7 @@ class UserProfile(BaseModel):
     )
 
 
-class CreateSiteResponse(BaseModel):
+class SiteResponse(BaseModel):
     id: int
     """Уникальный идентификатор сайта"""
     title: str

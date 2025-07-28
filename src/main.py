@@ -7,7 +7,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import HTMLResponse
 
-from models import CreateSiteResponse, SiteRequest, UserProfile
+from models import SiteRequest, SiteResponse, UserProfile
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
 
@@ -32,12 +32,32 @@ def mock_get_user():
     }
 
 
+@app.get(
+    "/frontend-api/sites/{site_id}",
+    summary="Получить сайт",
+    response_description="Данные сайта",
+    tags=["Sites"],
+    response_model=SiteResponse,
+)
+def mock_get_site(site_id: int):
+    return {
+        "created_at": "2025-06-15T18:29:56+00:00",
+        "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
+        "html_code_url": "http://example.com/media/index.html",
+        "id": site_id,
+        "prompt": "Сайт любителей играть в домино",
+        "screenshot_url": "http://example.com/media/index.png",
+        "title": "Фан клуб Домино",
+        "updated_at": "2025-06-15T18:29:56+00:00",
+    }
+
+
 @app.post(
     "/frontend-api/sites/create",
     summary="Создать сайт",
     response_description="Данные для генерации сайта",
     tags=["Sites"],
-    response_model=CreateSiteResponse,
+    response_model=SiteResponse,
 )
 def mock_create_site(site: SiteRequest):
     return {
