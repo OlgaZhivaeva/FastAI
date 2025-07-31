@@ -1,4 +1,4 @@
-from models import SiteResponse, UserProfile
+from models import SiteGenerationRequest, SiteRequest, SiteResponse, UserProfile
 
 
 def validate_schema_exampl(model):
@@ -12,7 +12,7 @@ def validate_schema_exampl(model):
 
 
 def main():
-    pydantic_models = [UserProfile, SiteResponse]
+    pydantic_models = [UserProfile, SiteResponse, SiteRequest, SiteGenerationRequest]
     for model in pydantic_models:
         try:
             validate_schema_exampl(model=model)

@@ -25,6 +25,7 @@ class UserProfile(BaseModel):
         return value
 
     model_config = ConfigDict(
+        extra="forbid",
         use_attribute_docstrings=True,
         json_schema_extra={
             "example": {
@@ -50,25 +51,26 @@ class SiteResponse(BaseModel):
     """Дата создания сайта"""
     updated_at: datetime
     """Дата последнего обновления сайта"""
-    html_code_download_url: str
-    """ """
-    html_code_url: str
-    """ """
-    screenshot_url: str
-    """ """
+    html_code_download_url: str | None
+    """URL для скачивания HTML-кода сайта """
+    html_code_url: str | None
+    """URL для просмотра HTML-кода сайта"""
+    screenshot_url: str | None
+    """URL превью сайта"""
 
     model_config = ConfigDict(
+        extra="forbid",
         use_attribute_docstrings=True,
         json_schema_extra={
             "example": {
-                "created_at": "2025-06-15T18:29:56+00:00",
+                "created_at": "2025-06-15T18:29:56",
                 "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
                 "html_code_url": "http://example.com/media/index.html",
                 "id": 1,
                 "prompt": "Сайт любителей играть в домино",
                 "screenshot_url": "http://example.com/media/index.png",
                 "title": "Фан клуб Домино",
-                "updated_at": "2025-06-15T18:29:56+00:00",
+                "updated_at": "2025-06-15T18:29:56",
             },
         },
     )
@@ -77,10 +79,29 @@ class SiteResponse(BaseModel):
 class SiteRequest(BaseModel):
     prompt: str
     """Промпт"""
-    title: str
+    title: str = "Название сайта"
     """Название сайта"""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "example": {
+                "prompt": "Сайт любителей космических путешествий",
+                "title": "Космический сайт",
+            },
+        },
+    )
 
 
 class SiteGenerationRequest(BaseModel):
     prompt: str
     """Промпт"""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        json_schema_extra={
+            "example": {
+                "prompt": "Сайт любителей морских свинок",
+            },
+        },
+    )
