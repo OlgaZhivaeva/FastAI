@@ -89,7 +89,7 @@ def mock_create_site(site: SiteRequest):
         "id": 1,
         "prompt": site.prompt,
         "screenshot_url": "http://example.com/media/index.png",
-        "title": "Название сайта",
+        "title": site.title,
         "updated_at": "2025-01-01T12:00:00",
     }
 
