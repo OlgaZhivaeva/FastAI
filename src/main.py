@@ -7,10 +7,10 @@ import aiofiles
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, EmailStr, field_validator
 from starlette.responses import HTMLResponse
 
-from models import Site
+# from models import Site
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
 
@@ -88,6 +88,51 @@ def mock_get_user():
     }
 
 
+# class UserSitesResponse(BaseModel):
+#     sites: list[Site]
+#     """Список сайтов пользователя"""
+#
+#     model_config = response_config_dict | ConfigDict(
+#         json_schema_extra={
+#             "example": {
+#                 "created_at": "2025-06-15T18:29:56",
+#                 "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
+#                 "html_code_url": "http://example.com/media/index.html",
+#                 "id": 1,
+#                 "prompt": "Сайт любителей играть в домино",
+#                 "screenshot_url": "http://example.com/media/index.png",
+#                 "title": "Фан клуб Домино",
+#                 "updated_at": "2025-06-15T18:29:56",
+#             },
+#         },
+#     )
+#
+#
+# @app.get(
+#     "/frontend-api/sites/my",
+#     summary="Получить список сайтов пользователя",
+#     response_description="Сайты пользователя",
+#     tags=["Sites"],
+#     response_model=UserSitesResponse,
+# )
+# def mock_get_user_sits():
+#     return {
+#         "sites":
+#         [
+#             {
+#             "created_at": "2025-01-01T00:00:00",
+#             "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
+#             "html_code_url": "http://example.com/media/index.html",
+#             "id": 1,
+#             "prompt": "Сайт садоводов любителей",
+#             "screenshot_url": "http://example.com/media/index.png",
+#             "title": "Садоводы любители",
+#             "updated_at": "2025-01-01T00:00:00",
+#             },
+#         ],
+#     }
+
+
 class SiteResponse(BaseModel):
     id: int
     """Уникальный идентификатор сайта"""
@@ -99,52 +144,12 @@ class SiteResponse(BaseModel):
     """Дата создания сайта"""
     updated_at: datetime
     """Дата последнего обновления сайта"""
-    html_code_download_url: str | None = None
+    html_code_download_url: AnyHttpUrl | None = None
     """URL для скачивания HTML-кода сайта """
-    html_code_url: str | None = None
+    html_code_url: AnyHttpUrl | None = None
     """URL для просмотра HTML-кода сайта"""
-    screenshot_url: str | None = None
+    screenshot_url: AnyHttpUrl | None = None
     """URL превью сайта"""
-
-    model_config = response_config_dict | ConfigDict(
-        json_schema_extra={
-            "example": {
-                "created_at": "2025-06-15T18:29:56",
-                "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
-                "html_code_url": "http://example.com/media/index.html",
-                "id": 1,
-                "prompt": "Сайт любителей играть в домино",
-                "screenshot_url": "http://example.com/media/index.png",
-                "title": "Фан клуб Домино",
-                "updated_at": "2025-06-15T18:29:56",
-            },
-        },
-    )
-
-
-@app.get(
-    "/frontend-api/sites/{site_id}",
-    summary="Получить сайт",
-    response_description="Данные сайта",
-    tags=["Sites"],
-    response_model=SiteResponse,
-)
-def mock_get_site(site_id: int):
-    return {
-        "created_at": "2025-06-15T18:29:56",
-        "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
-        "html_code_url": "http://example.com/media/index.html",
-        "id": site_id,
-        "prompt": "Сайт любителей",
-        "screenshot_url": "http://example.com/media/index.png",
-        "title": "Фан клуб",
-        "updated_at": "2025-06-15T18:29:56",
-    }
-
-
-class UserSitesResponse(BaseModel):
-    sites: list[Site]
-    """Список сайтов пользователя"""
 
     model_config = response_config_dict | ConfigDict(
         json_schema_extra={
@@ -167,11 +172,10 @@ class UserSitesResponse(BaseModel):
     summary="Получить список сайтов пользователя",
     response_description="Сайты пользователя",
     tags=["Sites"],
-    response_model=UserSitesResponse,
+    response_model=list[SiteResponse],
 )
 def mock_get_user_sits():
-    return {
-        [
+    return [
             {
             "created_at": "2025-01-01T00:00:00",
             "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
@@ -182,7 +186,26 @@ def mock_get_user_sits():
             "title": "Садоводы любители",
             "updated_at": "2025-01-01T00:00:00",
             },
-        ],
+    ]
+
+
+@app.get(
+    "/frontend-api/sites/{site_id}",
+    summary="Получить сайт",
+    response_description="Данные сайта",
+    tags=["Sites"],
+    response_model=SiteResponse,
+)
+def mock_get_site(site_id: int):
+    return {
+        "created_at": "2025-06-15T18:29:56",
+        "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
+        "html_code_url": "http://example.com/media/index.html",
+        "id": site_id,
+        "prompt": "Сайт любителей",
+        "screenshot_url": "http://example.com/media/index.png",
+        "title": "Фан клуб",
+        "updated_at": "2025-06-15T18:29:56",
     }
 
 
