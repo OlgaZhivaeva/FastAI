@@ -1,12 +1,16 @@
 from datetime import datetime
+from typing import Annotated
 
-from pydantic import AnyHttpUrl, BaseModel
+from pydantic import AnyHttpUrl, BaseModel, StringConstraints
 
 
 class Site(BaseModel):
     id: int
     """Уникальный идентификатор сайта"""
-    title: str
+    title: Annotated[
+        str,
+        StringConstraints(max_length=254),
+    ]
     """Название сайта"""
     prompt: str
     """Промпт"""
