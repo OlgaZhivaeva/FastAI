@@ -6,11 +6,9 @@ from typing import Annotated
 import aiofiles
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import AnyHttpUrl, BaseModel, ConfigDict, EmailStr, PastDatetime, StringConstraints
-from starlette.responses import HTMLResponse
 
-from reusebel_types import Site
+from reuseble_types import Site
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
 
@@ -53,14 +51,8 @@ class UserDetailsResponse(BaseModel):
     )
 
 
-@app.get(
-    "/frontend-api/users/me",
-    summary="Получить данные пользователя",
-    response_description="Данные пользователя",
-    tags=["Users"],
-    response_model=UserDetailsResponse,
-)
 def mock_get_user():
+    """/frontend-api/users/me"""
     return {
         "profile_id": 1,
         "email": "IIvanov@mail.ru",
@@ -91,14 +83,8 @@ class GeneratedSitesResponse(BaseModel):
     )
 
 
-@app.get(
-    "/frontend-api/sites/my",
-    summary="Получить список сайтов пользователя",
-    response_description="Сайты пользователя",
-    tags=["Sites"],
-    response_model=GeneratedSitesResponse,
-)
 def mock_get_user_sits():
+    """/frontend-api/users/my"""
     return {
         "sites":
         [
@@ -153,14 +139,8 @@ class SiteResponse(BaseModel):
     )
 
 
-@app.get(
-    "/frontend-api/sites/{site_id}",
-    summary="Получить сайт",
-    response_description="Данные сайта",
-    tags=["Sites"],
-    response_model=SiteResponse,
-)
 def mock_get_site(site_id: int):
+    """/frontend-api/{site_id}"""
     return {
         "created_at": "2025-06-15T18:29:56",
         "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
@@ -192,14 +172,8 @@ class CreateSiteRequest(BaseModel):
     )
 
 
-@app.post(
-    "/frontend-api/sites/create",
-    summary="Создать сайт",
-    response_description="Данные для генерации сайта",
-    tags=["Sites"],
-    response_model=SiteResponse,
-)
 def mock_create_site(site: CreateSiteRequest):
+    """/frontend-api/create"""
     return {
         "created_at": "2025-01-01T12:00:00",
         "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
@@ -225,14 +199,8 @@ class SiteGenerationRequest(BaseModel):
     )
 
 
-@app.post(
-    "/frontend-api/sites/{site_id}/generate",
-    summary="Сгенерировать HTML код сайта",
-    response_description="HTML код сайта",
-    tags=["Sites"],
-    response_class=HTMLResponse,
-)
 async def mock_generate_html(site_id: int, request: SiteGenerationRequest):
+    """/frontend-api/{site_id}/generate"""
     async def html_generator():
         async with aiofiles.open("src/index.html", "rb") as f:
             while True:
@@ -245,8 +213,4 @@ async def mock_generate_html(site_id: int, request: SiteGenerationRequest):
     return StreamingResponse(html_generator(), media_type="text/html")
 
 
-app.mount(
-    "/",
-    StaticFiles(directory=FRONTEND_DIR, html=True),
-    name="frontend",
-)
+from router import *
