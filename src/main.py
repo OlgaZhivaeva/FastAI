@@ -7,7 +7,7 @@ import aiofiles
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import AnyHttpUrl, BaseModel, ConfigDict, EmailStr, StringConstraints, field_validator
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, EmailStr, PastDatetime, StringConstraints
 from starlette.responses import HTMLResponse
 
 from reusebel_types import Site
@@ -25,16 +25,6 @@ request_config_dict = ConfigDict(
 )
 
 
-# def validate_past_datetime(value: datetime) -> datetime:
-#     now = datetime.now()
-#     if value > now:
-#         raise ValueError("Дата не может быть в будущем")
-#     return value
-#
-#
-# PastDatetime = Annotated[datetime, validate_past_datetime]
-
-
 class UserDetailsResponse(BaseModel):
     profile_id: int
     """Уникальный идентификатор профиля пользователя"""
@@ -42,19 +32,12 @@ class UserDetailsResponse(BaseModel):
     """Электронный адрес пользователя для связи и уведомлений"""
     username: Annotated[str, StringConstraints(max_length=254)]
     """Имя пользователя для входа в систему и идентификации"""
-    registered_at: Annotated[datetime, "Дата не может быть в будущем"]
+    registered_at: Annotated[datetime, PastDatetime]
     """Дата регистрации пользователя в системе"""
-    updated_at: Annotated[datetime, "Дата не может быть в будущем"]
+    updated_at: Annotated[datetime, PastDatetime]
     """Дата последнего обновления профиля пользователя"""
     is_active: bool
     """Флаг, указывающий, активен ли профиль пользователя"""
-
-    @field_validator("registered_at", "updated_at")
-    def check_date_not_future(cls, value):
-        now = datetime.now()
-        if value > now:
-            raise ValueError("Дата не может быть в будущем")
-        return value
 
     model_config = response_config_dict | ConfigDict(
         json_schema_extra={
