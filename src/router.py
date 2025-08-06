@@ -1,21 +1,13 @@
-from fastapi import APIRouter
 from starlette.responses import HTMLResponse
-from starlette.staticfiles import StaticFiles
 
-from main import (
-    FRONTEND_DIR,
-    GeneratedSitesResponse,
-    SiteResponse,
-    UserDetailsResponse,
-    app,
-    mock_create_site,
-    mock_generate_html,
-    mock_get_site,
-    mock_get_user,
-    mock_get_user_sits,
-)
-
-api_router = APIRouter(prefix="/frontend-api")
+# from starlette.staticfiles import StaticFiles
+# from main import FRONTEND_DIR, app
+from main import api_router
+from views.create_site import CreateSiteResponse, mock_create_site
+from views.generate_html import mock_generate_html
+from views.get_site import SiteResponse, mock_get_site
+from views.get_user import UserDetailsResponse, mock_get_user
+from views.get_user_sites import GeneratedSitesResponse, mock_get_user_sites
 
 api_router.get(
     "/users/me",
@@ -32,7 +24,7 @@ api_router.get(
     response_description="Сайты пользователя",
     tags=["Sites"],
     response_model=GeneratedSitesResponse,
-)(mock_get_user_sits)
+)(mock_get_user_sites)
 
 
 api_router.get(
@@ -49,7 +41,7 @@ api_router.post(
     summary="Создать сайт",
     response_description="Данные для генерации сайта",
     tags=["Sites"],
-    response_model=SiteResponse,
+    response_model=CreateSiteResponse,
 )(mock_create_site)
 
 
@@ -60,10 +52,3 @@ api_router.post(
     tags=["Sites"],
     response_class=HTMLResponse,
 )(mock_generate_html)
-
-app.include_router(api_router)
-app.mount(
-    "/",
-    StaticFiles(directory=FRONTEND_DIR, html=True),
-    name="frontend",
-)

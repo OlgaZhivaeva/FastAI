@@ -1,7 +1,15 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import AnyHttpUrl, BaseModel, PastDatetime, StringConstraints
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, PastDatetime, StringConstraints
+
+response_config_dict = ConfigDict(
+    extra="forbid",
+    use_attribute_docstrings=True,
+)
+request_config_dict = ConfigDict(
+    use_attribute_docstrings=True,
+)
 
 
 class Site(BaseModel):
