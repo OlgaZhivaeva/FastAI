@@ -1,4 +1,7 @@
-from main import CreateSiteRequest, SiteGenerationRequest, SiteResponse, UserDetailsResponse
+from views.create_site import CreateSiteRequest
+from views.generate_html import SiteGenerationRequest
+from views.get_site import SiteResponse
+from views.get_user import UserDetailsResponse
 
 
 def validate_schema_exampl(model):
