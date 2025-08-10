@@ -1,13 +1,13 @@
+from fastapi import APIRouter
 from starlette.responses import HTMLResponse
 
-# from starlette.staticfiles import StaticFiles
-# from main import FRONTEND_DIR, app
-from main import api_router
 from views.create_site import CreateSiteResponse, mock_create_site
 from views.generate_html import mock_generate_html
 from views.get_site import SiteResponse, mock_get_site
 from views.get_user import UserDetailsResponse, mock_get_user
 from views.get_user_sites import GeneratedSitesResponse, mock_get_user_sites
+
+api_router = APIRouter(prefix="/frontend-api")
 
 api_router.get(
     "/users/me",
