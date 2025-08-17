@@ -30,11 +30,11 @@ def mock_get_user_sites():
         [
             {
             "created_at": "2025-01-01T00:00:00",
-            "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
-            "html_code_url": "http://example.com/media/index.html",
+            "html_code_download_url": "src/index.html?response-content-disposition=attachment",
+            "html_code_url": "src/index.html",
             "id": 1,
             "prompt": "Сайт садоводов любителей",
-            "screenshot_url": "http://example.com/media/index.png",
+            "screenshot_url": "src/index.html",
             "title": "Садоводы любители",
             "updated_at": "2025-01-01T00:00:00",
             },

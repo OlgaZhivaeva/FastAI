@@ -73,6 +73,54 @@ $ source .venv/bin/activate  # для Linux
 $ .\.venv\Scripts\activate  # Для Windows
 ```
 
+### Настройки переменных окружения
+
+Для запуска проекта необходимо настроить переменные окружения.
+
+Скопируйте файл `example.env` в `.env`
+```commandline
+cp example.env .env
+```
+Отредактируйте файл `.env`.
+```.env
+DEBUG_MODE="Значение True для разработки и отладки или False для production"
+DEEP_SEEK_API_KEY="Ваш API ключ DeepSeek"
+DEEP_SEEK_MAX_CONNECTIONS="Максимальное количество подключений к DeepSeek API"
+UNSPLASH_CLIENT_ID="Ваш Client ID Unsplash APIo"
+UNSPLASH_MAX_CONNECTIONS="Максимальное количество подключений к Unsplash API"
+TIMEOUT="Таймаут в секундах для API запросов"
+DEEPSEEK_BASE_URL="Если вы используете альтернативную инсталляцию DeepSeek"
+```
+Заполните значения переменных окружения, необходимые для работы приложения.
+
+DEBUG_MODE: Включает или выключает режим отладки. Установите в True для разработки и отладки, False для production (рабочего режима).
+
+DEEP_SEEK_API_KEY: Ваш API ключ для доступа к DeepSeek API. Вы можете получить этот ключ, создав аккаунт и зарегистрировав<br>
+ваше приложение на Портале разработчиков [DeepSeek API](https://api-docs.deepseek.com/quick_start/pricing). Этот ключ необходим для аутентификации в сервисе DeepSeek.<br>
+Если нет возможности оплатить официальный DeepSeek (с большинства карт РФ), рекомендуем воспользоваться одной из альтернативных инсталляций:<br>
+- [BotHub](https://bothub.chat/deepseek-chat-v3-0324/api)
+- [VseGPT](https://vsegpt.ru/Docs/Models#h46-6)
+    - [Регистрация и настройка](https://gist.github.com/Eugene-Fed/9f86603a1279cfdc690ecc70b392f5cf)
+
+DEEP_SEEK_MAX_CONNECTIONS: Максимальное количество одновременных подключений к DeepSeek API.
+
+UNSPLASH_CLIENT_ID: Ваш Client ID для доступа к Unsplash API. Зарегистрируйте ваше приложение на Портале разработчиков
+[Unsplash API](https://unsplash.com/documentation#creating-a-developer-account),<br> чтобы получить этот ID.
+
+UNSPLASH_MAX_CONNECTIONS: Максимальное количество одновременных подключений к Unsplash API.
+
+TIMEOUT: Таймаут в секундах для API запросов. Это значение определяет, как долго приложение будет ждать ответа от API,<br>
+прежде чем произойдет таймаут. Увеличьте это значение, если вы часто сталкиваетесь с ошибками таймаута.
+
+DEEPSEEK_BASE_URL: Если вы используете альтернативную инсталляцию DeepSeek, укажите данные для вашей инсталляции.
+
+
+Чтобы предотвратить попадание файла .env в ваш репозиторий, добавьте следующую строку в файл .gitignore:
+```.gitignore
+.env
+```
+
+
 ## Как вести разработку
 
 Код проекта находится в папке `/src`.

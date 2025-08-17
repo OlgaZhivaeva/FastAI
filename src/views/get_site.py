@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import AnyHttpUrl, BaseModel, ConfigDict, StringConstraints
+from pydantic import BaseModel, ConfigDict, PastDatetime, StringConstraints
 
 from reuseble_types import response_config_dict
 
@@ -16,15 +16,15 @@ class SiteResponse(BaseModel):
     """Название сайта"""
     prompt: str
     """Промпт"""
-    created_at: datetime
+    created_at: Annotated[datetime, PastDatetime]
     """Дата создания сайта"""
-    updated_at: datetime
+    updated_at: Annotated[datetime, PastDatetime]
     """Дата последнего обновления сайта"""
-    html_code_download_url: AnyHttpUrl | None = None
+    html_code_download_url: str | None = None  # TODO заменить на AnyHttpUrl
     """URL для скачивания HTML-кода сайта """
-    html_code_url: AnyHttpUrl | None = None
+    html_code_url: str | None = None  # TODO заменить на AnyHttpUrl
     """URL для просмотра HTML-кода сайта"""
-    screenshot_url: AnyHttpUrl | None = None
+    screenshot_url: str | None = None  # TODO заменить на AnyHttpUrl
     """URL превью сайта"""
 
     model_config = response_config_dict | ConfigDict(
@@ -47,11 +47,11 @@ def mock_get_site(site_id: int):
     """/frontend-api/{site_id}"""
     return {
         "created_at": "2025-06-15T18:29:56",
-        "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
-        "html_code_url": "http://example.com/media/index.html",
+        "html_code_download_url": "src/index.html?response-content-disposition=attachment",
+        "html_code_url": "src/index.html",
         "id": site_id,
         "prompt": "Сайт любителей",
-        "screenshot_url": "http://example.com/media/index.png",
+        "screenshot_url": "src/index.html",
         "title": "Фан клуб",
         "updated_at": "2025-06-15T18:29:56",
     }

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import AnyHttpUrl, BaseModel, ConfigDict, StringConstraints
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, PastDatetime, StringConstraints
 
 from reuseble_types import request_config_dict, response_config_dict
 
@@ -16,9 +16,9 @@ class CreateSiteResponse(BaseModel):
     """Название сайта"""
     prompt: str
     """Промпт"""
-    created_at: datetime
+    created_at: Annotated[datetime, PastDatetime]
     """Дата создания сайта"""
-    updated_at: datetime
+    updated_at: Annotated[datetime, PastDatetime]
     """Дата последнего обновления сайта"""
     html_code_download_url: AnyHttpUrl | None = None
     """URL для скачивания HTML-кода сайта """

@@ -8,6 +8,11 @@ dependencies = [
     "aiofiles>=24.1.0",
     "editorconfig-checker==3.2.1",
     "fastapi[standard]==0.115.12",
+    "html-page-generator",
     "mypy>=1.17.0",
+    "pydantic-settings>=2.10.1",
     "ruff==0.11.13",
 ]
+
+[tool.uv.sources]
+html-page-generator = { git = "https://github.com/devmanorg/html-page-generator.git" }

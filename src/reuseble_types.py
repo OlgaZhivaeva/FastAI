@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import AnyHttpUrl, BaseModel, ConfigDict, PastDatetime, StringConstraints
+from pydantic import BaseModel, ConfigDict, PastDatetime, StringConstraints
 
 response_config_dict = ConfigDict(
     extra="forbid",
@@ -26,9 +26,9 @@ class Site(BaseModel):
     """Дата создания сайта"""
     updated_at: Annotated[datetime, PastDatetime]
     """Дата последнего обновления сайта"""
-    html_code_download_url: AnyHttpUrl | None = None
+    html_code_download_url: str | None = None  # TODO заменить на AnyHttpUrl
     """URL для скачивания HTML-кода сайта """
-    html_code_url: AnyHttpUrl | None = None
+    html_code_url: str | None = None  # TODO заменить на AnyHttpUrl
     """URL для просмотра HTML-кода сайта"""
-    screenshot_url: AnyHttpUrl | None = None
+    screenshot_url: str | None = None  # TODO заменить на AnyHttpUrl
     """URL превью сайта"""
