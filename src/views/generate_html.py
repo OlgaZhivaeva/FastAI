@@ -1,7 +1,8 @@
-import asyncio
 from typing import Annotated
 
-import aiofiles
+import anyio
+import httpx
+from html_page_generator import AsyncDeepseekClient, AsyncPageGenerator, AsyncUnsplashClient
 from pydantic import BaseModel, ConfigDict, SecretStr, conint
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from starlette.responses import StreamingResponse
@@ -49,13 +50,28 @@ async def mock_generate_html(site_id: int, request: SiteGenerationRequest):
     settings_json_format = settings.model_dump_json(indent=4)
     print(settings_json_format)
 
-    async def html_generator():
-        async with aiofiles.open("src/index.html", "rb") as f:
-            while True:
-                chunk = await f.read(1024)
-                if not chunk:
-                    break
-                yield chunk
-                await asyncio.sleep(1)
+    async def html_generator(user_prompt: str):
+        try:
+            async with (
+                AsyncUnsplashClient.setup(settings.unsplash_client_id, timeout=3),
+                AsyncDeepseekClient.setup(settings.deep_seek_api_key, settings.deepseek_base_url),
 
-    return StreamingResponse(html_generator(), media_type="text/html")
+            ):
+                with anyio.CancelScope(shield=True):
+                    generator = AsyncPageGenerator(debug_mode=settings.debug_mode)
+                    title_saved = False
+                    async for chunk in generator(user_prompt):
+                        yield chunk
+                        print(chunk, end="", flush=True)
+                        if title_saved:
+                            continue
+                        if title := generator.html_page.title:
+                            print(title)
+                            title_saved = True
+
+                with open("site_title_1" + '.html', 'w', encoding='utf-8') as f:
+                    f.write(generator.html_page.html_code)
+        except (httpx.ReadTimeout, httpx.ConnectTimeout, httpx.TimeoutException, httpx.HTTPStatusError) as err:
+            print(f"Oшибка при генерации HTML: {err}")
+
+    return StreamingResponse(html_generator(request.prompt), media_type="text/html")
