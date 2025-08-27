@@ -1,7 +1,9 @@
 from typing import Annotated
 
+import aioboto3
 import anyio
 import httpx
+from aiobotocore.config import AioConfig
 from html_page_generator import AsyncDeepseekClient, AsyncPageGenerator, AsyncUnsplashClient
 from pydantic import BaseModel, ConfigDict, SecretStr, conint
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -38,9 +40,30 @@ class AppSettings(BaseSettings):
     )
 
 
-class HtmlPage(BaseModel):
-    html_code: str = ""
-    title: str = ""
+config = AioConfig(
+    max_pool_connections=50,  # 50 параллельных операций
+    connect_timeout=10,  # 10 сек на подключение
+    read_timeout=30,  # 30 сек на чтение данных
+)
+
+
+async def upload_html_page(html_content):
+    async with aioboto3.Session().client(
+            's3',
+            config=config,
+            region_name='us-east-1',
+            endpoint_url='http://127.0.0.1:9000',
+            aws_access_key_id='minioadmin',
+            aws_secret_access_key='minioadmin',
+    ) as client:
+        upload_params = {
+            'Bucket': 'html-bucket',
+            'Key': 'index.html',  # Путь в S3
+            'Body': html_content,  # Данные
+            'ContentType': 'text/html',  # MIME-тип
+            'ContentDisposition': 'attachment',
+        }
+        await client.put_object(**upload_params)
 
 
 async def mock_generate_html(site_id: int, request: SiteGenerationRequest):
@@ -55,7 +78,6 @@ async def mock_generate_html(site_id: int, request: SiteGenerationRequest):
             async with (
                 AsyncUnsplashClient.setup(settings.unsplash_client_id, timeout=3),
                 AsyncDeepseekClient.setup(settings.deep_seek_api_key, settings.deepseek_base_url),
-
             ):
                 with anyio.CancelScope(shield=True):
                     generator = AsyncPageGenerator(debug_mode=settings.debug_mode)
@@ -69,8 +91,9 @@ async def mock_generate_html(site_id: int, request: SiteGenerationRequest):
                             print(title)
                             title_saved = True
 
-                with open("site_title_1" + '.html', 'w', encoding='utf-8') as f:
-                    f.write(generator.html_page.html_code)
+                html_content = generator.html_page.html_code
+                await upload_html_page(html_content)
+
         except (httpx.ReadTimeout, httpx.ConnectTimeout, httpx.TimeoutException, httpx.HTTPStatusError) as err:
             print(f"Oшибка при генерации HTML: {err}")
 

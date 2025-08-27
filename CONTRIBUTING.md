@@ -56,7 +56,7 @@ pre-commit installed at .git/hooks/pre-commit
 
 IDE для корректной работы подсказок необходимо развернуть виртуальное окружение со всеми установленными зависимостями.
 
-В качестве пакетного менеджера на проекта используется [uv](https://docs.astral.sh/uv/).
+В качестве пакетного менеджера на проекте используется [uv](https://docs.astral.sh/uv/).
 
 Установите [uv](https://docs.astral.sh/uv/) и в корне репозитория выполните команду
 
@@ -118,6 +118,51 @@ DEEPSEEK_BASE_URL: Если вы используете альтернативн
 Чтобы предотвратить попадание файла .env в ваш репозиторий, добавьте следующую строку в файл .gitignore:
 ```.gitignore
 .env
+```
+
+## Как установить  и запустить MinIO
+
+Скачать MinIO можно на [официальном сайте MinIO](https://www.min.io/download?platform=windows)
+
+### Инструкция для Windows
+
+Откройте PowerShell от имени администратора. Создайте папку для MinIO:
+```powershell
+New-Item -ItemType Directory -Path "C:\minio"
+```
+
+Загрузите MinIO:
+```powershell
+Invoke-WebRequest -Uri "https://dl.min.io/server/minio/release/windows-amd64/minio.exe" -OutFile "C:\minio\minio.exe"
+```
+Создайте папку для данных:
+```powershell
+New-Item -ItemType Directory -Path "C:\minio\data"
+```
+
+Скачайте утилиту mc (MinIO Client):
+```powershell
+Invoke-WebRequest -Uri "https://dl.min.io/client/mc/release/windows-amd64/mc.exe" -OutFile "C:\mc.exe"
+```
+
+Запустить MinIO:
+```powershell
+& "C:\minio\minio.exe" server C:\minio\data
+```
+Зайдите на сайт MinIO по адресу http://127.0.0.1:9000. Используйте для входа учетные данные:
+   RootUser: minioadmin
+   RootPass: minioadmin
+
+На сайте создайте свой бакет, например `html-bucket` и загрузите в него файлы `index.html` и `index.jpg`
+
+Установите алиас для mc, например `myminio`
+```powershell
+mc alias set 'myminio' 'http://127.0.0.1:9000' 'myadmin' 'myadmin'
+```
+
+Сдлайте бакет публичным используя команду
+```powershell
+mc anonymous set public myminio/html-bucket
 ```
 
 
