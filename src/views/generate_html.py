@@ -23,18 +23,16 @@ class SiteGenerationRequest(BaseModel):
     )
 
 
-config = AioConfig(
-    max_pool_connections=50,
-    connect_timeout=10,
-    read_timeout=30,
-)
-
-
 def get_settings(request: Request):
     return request.app.state.settings
 
 
 async def upload_html_page(html_content, settings):
+    config = AioConfig(
+        max_pool_connections=settings.minio.max_pool_connections,
+        connect_timeout=settings.minio.connect_timeout,
+        read_timeout=settings.minio.read_timeout,
+    )
     async with aioboto3.Session().client(
             's3',
             config=config,

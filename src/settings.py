@@ -21,6 +21,9 @@ class Minio(BaseModel):
     aws_secret_access_key: str
     bucket: str
     key: str
+    max_pool_connections: int
+    connect_timeout: int
+    read_timeout: int
 
 
 class AppSettings(BaseSettings):
