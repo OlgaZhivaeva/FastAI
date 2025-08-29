@@ -1,7 +1,5 @@
-import aioboto3
 import anyio
 import httpx
-from aiobotocore.config import AioConfig
 from fastapi import Request
 from html_page_generator import AsyncDeepseekClient, AsyncPageGenerator, AsyncUnsplashClient
 from pydantic import BaseModel, ConfigDict
@@ -24,27 +22,14 @@ class SiteGenerationRequest(BaseModel):
 
 
 async def upload_html_page(html_content, http_request: Request):
-    config = AioConfig(
-        max_pool_connections=http_request.app.state.settings.minio.max_pool_connections,
-        connect_timeout=http_request.app.state.settings.minio.connect_timeout,
-        read_timeout=http_request.app.state.settings.minio.read_timeout,
-    )
-    async with aioboto3.Session().client(
-            's3',
-            config=config,
-            region_name='us-east-1',
-            endpoint_url=http_request.app.state.settings.minio.endpoint_url,
-            aws_access_key_id=http_request.app.state.settings.minio.aws_access_key_id,
-            aws_secret_access_key=http_request.app.state.settings.minio.aws_secret_access_key,
-    ) as client:
-        upload_params = {
-            'Bucket': http_request.app.state.settings.minio.bucket,
-            'Key': http_request.app.state.settings.minio.key,
-            'Body': html_content,
-            'ContentType': 'text/html',
-            'ContentDisposition': 'attachment',
-        }
-        await client.put_object(**upload_params)
+    upload_params = {
+        'Bucket': http_request.app.state.settings.minio.bucket,
+        'Key': http_request.app.state.settings.minio.key,
+        'Body': html_content,
+        'ContentType': 'text/html',
+        'ContentDisposition': 'attachment',
+    }
+    await http_request.app.state.s3_client.put_object(**upload_params)
 
 
 async def mock_generate_html(
