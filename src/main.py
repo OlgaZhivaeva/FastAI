@@ -11,7 +11,7 @@ FRONTEND_DIR = Path(__file__).parent / "frontend"
 
 settings = AppSettings()
 
-print(f"Настройки приложения: {settings.model_dump_json(indent=4)}")
+print("Настройки приложения:", settings.model_dump_json(indent=4))
 
 
 @asynccontextmanager

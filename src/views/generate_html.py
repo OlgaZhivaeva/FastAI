@@ -2,7 +2,7 @@ import aioboto3
 import anyio
 import httpx
 from aiobotocore.config import AioConfig
-from fastapi import Depends, Request
+from fastapi import Request
 from html_page_generator import AsyncDeepseekClient, AsyncPageGenerator, AsyncUnsplashClient
 from pydantic import BaseModel, ConfigDict
 from starlette.responses import StreamingResponse
@@ -23,27 +23,23 @@ class SiteGenerationRequest(BaseModel):
     )
 
 
-def get_settings(request: Request):
-    return request.app.state.settings
-
-
-async def upload_html_page(html_content, settings):
+async def upload_html_page(html_content, http_request: Request):
     config = AioConfig(
-        max_pool_connections=settings.minio.max_pool_connections,
-        connect_timeout=settings.minio.connect_timeout,
-        read_timeout=settings.minio.read_timeout,
+        max_pool_connections=http_request.app.state.settings.minio.max_pool_connections,
+        connect_timeout=http_request.app.state.settings.minio.connect_timeout,
+        read_timeout=http_request.app.state.settings.minio.read_timeout,
     )
     async with aioboto3.Session().client(
             's3',
             config=config,
             region_name='us-east-1',
-            endpoint_url=settings.minio.endpoint_url,
-            aws_access_key_id=settings.minio.aws_access_key_id,
-            aws_secret_access_key=settings.minio.aws_secret_access_key,
+            endpoint_url=http_request.app.state.settings.minio.endpoint_url,
+            aws_access_key_id=http_request.app.state.settings.minio.aws_access_key_id,
+            aws_secret_access_key=http_request.app.state.settings.minio.aws_secret_access_key,
     ) as client:
         upload_params = {
-            'Bucket': settings.minio.bucket,
-            'Key': settings.minio.key,
+            'Bucket': http_request.app.state.settings.minio.bucket,
+            'Key': http_request.app.state.settings.minio.key,
             'Body': html_content,
             'ContentType': 'text/html',
             'ContentDisposition': 'attachment',
@@ -51,16 +47,26 @@ async def upload_html_page(html_content, settings):
         await client.put_object(**upload_params)
 
 
-async def mock_generate_html(site_id: int, request: SiteGenerationRequest, settings=Depends(get_settings)):
+async def mock_generate_html(
+    site_id: int,
+    request: SiteGenerationRequest,
+    http_request: Request,
+):
     """/frontend-api/{site_id}/generate"""
     async def html_generator(user_prompt: str):
         try:
             async with (
-                AsyncUnsplashClient.setup(settings.unsplash.client_id, timeout=3),
-                AsyncDeepseekClient.setup(settings.deep_seek.api_key, settings.deep_seek.base_url),
+                AsyncUnsplashClient.setup(
+                    http_request.app.state.settings.unsplash.client_id,
+                    timeout=3,
+                ),
+                AsyncDeepseekClient.setup(
+                    http_request.app.state.settings.deep_seek.api_key,
+                    http_request.app.state.settings.deep_seek.base_url,
+                ),
             ):
                 with anyio.CancelScope(shield=True):
-                    generator = AsyncPageGenerator(debug_mode=settings.debug_mode)
+                    generator = AsyncPageGenerator(debug_mode=http_request.app.state.settings.debug_mode)
                     title_saved = False
                     async for chunk in generator(user_prompt):
                         yield chunk
@@ -72,7 +78,7 @@ async def mock_generate_html(site_id: int, request: SiteGenerationRequest, setti
                             title_saved = True
 
                 html_content = generator.html_page.html_code
-                await upload_html_page(html_content, settings=settings)
+                await upload_html_page(html_content, http_request)
 
         except (httpx.ReadTimeout, httpx.ConnectTimeout, httpx.TimeoutException, httpx.HTTPStatusError) as err:
             print(f"Oшибка при генерации HTML: {err}")
