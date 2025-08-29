@@ -1,12 +1,10 @@
-from typing import Annotated
-
 import aioboto3
 import anyio
 import httpx
 from aiobotocore.config import AioConfig
+from fastapi import Depends, Request
 from html_page_generator import AsyncDeepseekClient, AsyncPageGenerator, AsyncUnsplashClient
-from pydantic import BaseModel, ConfigDict, SecretStr, conint
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import BaseModel, ConfigDict
 from starlette.responses import StreamingResponse
 
 from reuseble_types import request_config_dict
@@ -25,59 +23,43 @@ class SiteGenerationRequest(BaseModel):
     )
 
 
-class AppSettings(BaseSettings):
-    """Главные настройки приложения. Загружаются из .env."""
-    debug_mode: bool = False
-    deep_seek_api_key: SecretStr
-    unsplash_client_id: SecretStr
-    deep_seek_max_connections: Annotated[conint(gt=0), "Максимальное количество подключений"] | None = None
-    unsplash_max_connections: Annotated[conint(gt=0), "Максимальное количество подключений"] | None = None
-    timeout: Annotated[conint(gt=0), "Таймаут"] | None = None
-    deepseek_base_url: str
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-    )
-
-
 config = AioConfig(
-    max_pool_connections=50,  # 50 параллельных операций
-    connect_timeout=10,  # 10 сек на подключение
-    read_timeout=30,  # 30 сек на чтение данных
+    max_pool_connections=50,
+    connect_timeout=10,
+    read_timeout=30,
 )
 
 
-async def upload_html_page(html_content):
+def get_settings(request: Request):
+    return request.app.state.settings
+
+
+async def upload_html_page(html_content, settings):
     async with aioboto3.Session().client(
             's3',
             config=config,
             region_name='us-east-1',
-            endpoint_url='http://127.0.0.1:9000',
-            aws_access_key_id='minioadmin',
-            aws_secret_access_key='minioadmin',
+            endpoint_url=settings.minio.endpoint_url,
+            aws_access_key_id=settings.minio.aws_access_key_id,
+            aws_secret_access_key=settings.minio.aws_secret_access_key,
     ) as client:
         upload_params = {
-            'Bucket': 'html-bucket',
-            'Key': 'index.html',  # Путь в S3
-            'Body': html_content,  # Данные
-            'ContentType': 'text/html',  # MIME-тип
+            'Bucket': settings.minio.bucket,
+            'Key': settings.minio.key,
+            'Body': html_content,
+            'ContentType': 'text/html',
             'ContentDisposition': 'attachment',
         }
         await client.put_object(**upload_params)
 
 
-async def mock_generate_html(site_id: int, request: SiteGenerationRequest):
+async def mock_generate_html(site_id: int, request: SiteGenerationRequest, settings=Depends(get_settings)):
     """/frontend-api/{site_id}/generate"""
-    settings = AppSettings()
-
-    settings_json_format = settings.model_dump_json(indent=4)
-    print(settings_json_format)
-
     async def html_generator(user_prompt: str):
         try:
             async with (
-                AsyncUnsplashClient.setup(settings.unsplash_client_id, timeout=3),
-                AsyncDeepseekClient.setup(settings.deep_seek_api_key, settings.deepseek_base_url),
+                AsyncUnsplashClient.setup(settings.unsplash.client_id, timeout=3),
+                AsyncDeepseekClient.setup(settings.deep_seek.api_key, settings.deep_seek.base_url),
             ):
                 with anyio.CancelScope(shield=True):
                     generator = AsyncPageGenerator(debug_mode=settings.debug_mode)
@@ -92,7 +74,7 @@ async def mock_generate_html(site_id: int, request: SiteGenerationRequest):
                             title_saved = True
 
                 html_content = generator.html_page.html_code
-                await upload_html_page(html_content)
+                await upload_html_page(html_content, settings=settings)
 
         except (httpx.ReadTimeout, httpx.ConnectTimeout, httpx.TimeoutException, httpx.HTTPStatusError) as err:
             print(f"Oшибка при генерации HTML: {err}")

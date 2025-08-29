@@ -1,3 +1,5 @@
+from pydantic import ValidationError
+
 from views.create_site import CreateSiteRequest, CreateSiteResponse
 from views.generate_html import SiteGenerationRequest
 from views.get_site import SiteResponse
@@ -10,7 +12,7 @@ def validate_schema_example(model):
     if example:
         try:
             model.model_validate(example)
-        except ValueError as e:
+        except ValidationError as e:
             raise ValueError(f"Ошибки валидации: {e}")
 
 
