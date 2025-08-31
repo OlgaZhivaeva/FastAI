@@ -1,4 +1,5 @@
 from fastapi import Request
+from furl import furl
 from pydantic import BaseModel, ConfigDict
 
 from reuseble_types import Site, response_config_dict
@@ -26,21 +27,6 @@ class GeneratedSitesResponse(BaseModel):
 
 async def mock_get_user_sites(http_request: Request):
     """/frontend-api/users/my"""
-    html_code_download_url = getattr(
-        http_request.app.state,
-        'html_code_download_url',
-        "http://example.com/media/index.html?response-content-disposition=attachment",
-    )
-    html_code_url = getattr(
-        http_request.app.state,
-        'html_code_url',
-        "http://example.com/media/index.html",
-    )
-    screenshot_url = getattr(
-        http_request.app.state,
-        'screenshot_url',
-        "http://example.com/media/index.png",
-    )
     title = getattr(
         http_request.app.state,
         'title',
@@ -50,6 +36,33 @@ async def mock_get_user_sites(http_request: Request):
         'user_prompt',
         "Промпт не задан",
     )
+    url_builder = furl(
+        scheme="http",
+        host="127.0.0.1",
+        port=9000,
+        path=f"{http_request.app.state.settings.s3.bucket}/{http_request.app.state.settings.s3.key}",
+        query_params={"response-content-disposition": "attachment"},
+    )
+    html_code_download_url = str(url_builder)
+
+    url_builder = furl(
+        scheme="http",
+        host="127.0.0.1",
+        port=9000,
+        path=f"{http_request.app.state.settings.s3.bucket}/{http_request.app.state.settings.s3.key}",
+        query_params={"response-content-disposition": "inline"},
+    )
+    html_code_url = str(url_builder)
+
+    screenshot = "index.png"
+    url_builder = furl(
+        scheme="http",
+        host="127.0.0.1",
+        port=9000,
+        path=f"{http_request.app.state.settings.s3.bucket}/{screenshot}",
+        query_params={"response-content-disposition": "inline"},
+    )
+    screenshot_url = str(url_builder)
 
     return {
         "sites":
