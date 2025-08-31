@@ -1,3 +1,4 @@
+from fastapi import Request
 from pydantic import BaseModel, ConfigDict
 
 from reuseble_types import Site, response_config_dict
@@ -23,19 +24,44 @@ class GeneratedSitesResponse(BaseModel):
     )
 
 
-def mock_get_user_sites():
+async def mock_get_user_sites(http_request: Request):
     """/frontend-api/users/my"""
+    html_code_download_url = getattr(
+        http_request.app.state,
+        'html_code_download_url',
+        "http://example.com/media/index.html?response-content-disposition=attachment",
+    )
+    html_code_url = getattr(
+        http_request.app.state,
+        'html_code_url',
+        "http://example.com/media/index.html",
+    )
+    screenshot_url = getattr(
+        http_request.app.state,
+        'screenshot_url',
+        "http://example.com/media/index.png",
+    )
+    title = getattr(
+        http_request.app.state,
+        'title',
+        "Заголовок не задан")
+    prompt = getattr(
+        http_request.app.state,
+        'user_prompt',
+        "Промпт не задан",
+    )
+
     return {
         "sites":
         [
             {
             "created_at": "2025-01-01T00:00:00",
-            "html_code_download_url": "src/index.html?response-content-disposition=attachment",
-            "html_code_url": "src/index.html",
+            "html_code_download_url": html_code_download_url,
+            "html_code_url": html_code_url,
             "id": 1,
-            "prompt": "Сайт садоводов любителей",
-            "screenshot_url": "src/index.html",
-            "title": "Садоводы любители",
+            "prompt": prompt,
+            "screenshot_url": screenshot_url,
+            "title": title,
             "updated_at": "2025-01-01T00:00:00",
             },
         ],

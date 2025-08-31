@@ -84,38 +84,38 @@ cp example.env .env
 Отредактируйте файл `.env`.
 ```.env
 DEBUG_MODE="Значение True для разработки и отладки или False для production"
-DEEP_SEEK_API_KEY="Ваш API ключ DeepSeek"
-DEEP_SEEK_MAX_CONNECTIONS="Максимальное количество подключений к DeepSeek API"
-UNSPLASH_CLIENT_ID="Ваш Client ID Unsplash APIo"
-UNSPLASH_MAX_CONNECTIONS="Максимальное количество подключений к Unsplash API"
 TIMEOUT="Таймаут в секундах для API запросов"
-DEEPSEEK_BASE_URL="Если вы используете альтернативную инсталляцию DeepSeek"
+DEEP_SEEK__API_KEY="Ваш API ключ DeepSeek"
+DEEP_SEEK__MAX_CONNECTIONS="Максимальное количество подключений к DeepSeek API"
+DEEPSEEK__BASE_URL="Если вы используете альтернативную инсталляцию DeepSeek"
+UNSPLASH__CLIENT_ID="Ваш Client ID Unsplash APIo"
+UNSPLASH__MAX_CONNECTIONS="Максимальное количество подключений к Unsplash API"
 ```
 Заполните значения переменных окружения, необходимые для работы приложения.
 
 DEBUG_MODE: Включает или выключает режим отладки. Установите в True для разработки и отладки, False для production (рабочего режима).
 
-DEEP_SEEK_API_KEY: Ваш API ключ для доступа к DeepSeek API. Вы можете получить этот ключ, создав аккаунт и зарегистрировав<br>
+TIMEOUT: Таймаут в секундах для API запросов. Это значение определяет, как долго приложение будет ждать ответа от API,<br>
+прежде чем произойдет таймаут. Увеличьте это значение, если вы часто сталкиваетесь с ошибками таймаута.
+
+DEEP_SEEK__API_KEY: Ваш API ключ для доступа к DeepSeek API. Вы можете получить этот ключ, создав аккаунт и зарегистрировав<br>
 ваше приложение на Портале разработчиков [DeepSeek API](https://api-docs.deepseek.com/quick_start/pricing). Этот ключ необходим для аутентификации в сервисе DeepSeek.<br>
 Если нет возможности оплатить официальный DeepSeek (с большинства карт РФ), рекомендуем воспользоваться одной из альтернативных инсталляций:<br>
 - [BotHub](https://bothub.chat/deepseek-chat-v3-0324/api)
 - [VseGPT](https://vsegpt.ru/Docs/Models#h46-6)
     - [Регистрация и настройка](https://gist.github.com/Eugene-Fed/9f86603a1279cfdc690ecc70b392f5cf)
 
-DEEP_SEEK_MAX_CONNECTIONS: Максимальное количество одновременных подключений к DeepSeek API.
+DEEP_SEEK__MAX_CONNECTIONS: Максимальное количество одновременных подключений к DeepSeek API.
 
-UNSPLASH_CLIENT_ID: Ваш Client ID для доступа к Unsplash API. Зарегистрируйте ваше приложение на Портале разработчиков
+DEEPSEEK__BASE_URL: Если вы используете альтернативную инсталляцию DeepSeek, укажите данные для вашей инсталляции.
+
+UNSPLASH__CLIENT_ID: Ваш Client ID для доступа к Unsplash API. Зарегистрируйте ваше приложение на Портале разработчиков
 [Unsplash API](https://unsplash.com/documentation#creating-a-developer-account),<br> чтобы получить этот ID.
 
-UNSPLASH_MAX_CONNECTIONS: Максимальное количество одновременных подключений к Unsplash API.
-
-TIMEOUT: Таймаут в секундах для API запросов. Это значение определяет, как долго приложение будет ждать ответа от API,<br>
-прежде чем произойдет таймаут. Увеличьте это значение, если вы часто сталкиваетесь с ошибками таймаута.
-
-DEEPSEEK_BASE_URL: Если вы используете альтернативную инсталляцию DeepSeek, укажите данные для вашей инсталляции.
+UNSPLASH__MAX_CONNECTIONS: Максимальное количество одновременных подключений к Unsplash API.
 
 
-Чтобы предотвратить попадание файла .env в ваш репозиторий, добавьте следующую строку в файл .gitignore:
+Чтобы предотвратить попадание файла `.env` в ваш репозиторий, добавьте следующую строку в файл .gitignore:
 ```.gitignore
 .env
 ```
@@ -149,21 +149,23 @@ Invoke-WebRequest -Uri "https://dl.min.io/client/mc/release/windows-amd64/mc.exe
 ```powershell
 & "C:\minio\minio.exe" server C:\minio\data
 ```
-Зайдите на сайт MinIO по адресу http://127.0.0.1:9000. Используйте для входа учетные данные:
-   RootUser: minioadmin
-   RootPass: minioadmin
+Зайдите на сайт MinIO по адресу http://127.0.0.1:9000. <br>Используйте для входа учетные данные:
+-   RootUser: minioadmin
+-   RootPass: minioadmin
 
-На сайте создайте свой бакет, например `html-bucket` и загрузите в него файлы `index.html` и `index.jpg`
+На сайте создайте свой бакет, например `html-bucket`
 
-Установите алиас для mc, например `myminio`
+Установите алиас для mc (MinIO Client), например `myminio`
 ```powershell
 mc alias set 'myminio' 'http://127.0.0.1:9000' 'myadmin' 'myadmin'
 ```
 
-Сдлайте бакет публичным используя команду
+Сделайте бакет публичным используя команду
 ```powershell
 mc anonymous set public myminio/html-bucket
 ```
+Вручную загрузите в бакет файлы `index.html` и `index.png`.
+Это позволяет использовать ссылки на файлы в бакете при реализации эндпоинтов
 
 
 ## Как вести разработку

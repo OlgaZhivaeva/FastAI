@@ -289,6 +289,7 @@ dependencies = [
     { name = "aiohttp" },
     { name = "editorconfig-checker" },
     { name = "fastapi", extra = ["standard"] },
+    { name = "gotenberg-api" },
     { name = "html-page-generator" },
     { name = "mypy" },
     { name = "pydantic-settings" },
@@ -302,6 +303,7 @@ requires-dist = [
     { name = "aiohttp", specifier = ">=3.12.15" },
     { name = "editorconfig-checker", specifier = "==3.2.1" },
     { name = "fastapi", extras = ["standard"], specifier = "==0.115.12" },
+    { name = "gotenberg-api", git = "https://github.com/devmanorg/gotenberg-api.git" },
     { name = "html-page-generator", git = "https://github.com/devmanorg/html-page-generator.git" },
     { name = "mypy", specifier = ">=1.17.0" },
     { name = "pydantic-settings", specifier = ">=2.10.1" },
@@ -392,6 +394,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/31/8fbc5af2d183bff20f21aa743b4088eac4445d2bb1cdece449ae80e4e2d1/frozenlist-1.7.0-cp313-cp313t-win32.whl", hash = "sha256:3a14027124ddb70dfcee5148979998066897e79f89f64b13328595c4bdf77c81", size = 43059, upload-time = "2025-06-09T23:02:02.072Z" },
     { url = "https://files.pythonhosted.org/packages/bb/ed/41956f52105b8dbc26e457c5705340c67c8cc2b79f394b79bffc09d0e938/frozenlist-1.7.0-cp313-cp313t-win_amd64.whl", hash = "sha256:3bf8010d71d4507775f658e9823210b7427be36625b387221642725b515dcf3e", size = 47516, upload-time = "2025-06-09T23:02:03.779Z" },
     { url = "https://files.pythonhosted.org/packages/ee/45/b82e3c16be2182bff01179db177fe144d58b5dc787a7d4492c6ed8b9317f/frozenlist-1.7.0-py3-none-any.whl", hash = "sha256:9a5af342e34f7e97caf8c995864c7a396418ae2859cc6fdf1b1073020d516a7e", size = 13106, upload-time = "2025-06-09T23:02:34.204Z" },
+]
+
+[[package]]
+name = "gotenberg-api"
+version = "0.1.0"
+source = { git = "https://github.com/devmanorg/gotenberg-api.git#a463c4af85a603c07c41aff2b12ea6d3945ce245" }
+dependencies = [
+    { name = "httpx" },
+    { name = "pydantic" },
 ]
 
 [[package]]

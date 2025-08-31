@@ -15,22 +15,22 @@ class Unsplash(BaseModel):
     max_connections: Annotated[conint(gt=0), "Максимальное количество подключений"] | None = None
 
 
-class Minio(BaseModel):
+class S3(BaseModel):
     endpoint_url: str
     aws_access_key_id: str
     aws_secret_access_key: str
     bucket: str
     key: str
-    max_pool_connections: int
-    connect_timeout: int
-    read_timeout: int
+    max_pool_connections: int = 50
+    connect_timeout: int = 10
+    read_timeout: int = 30
 
 
 class AppSettings(BaseSettings):
     """Главные настройки приложения. Загружаются из .env."""
     deep_seek: DeepSeek
     unsplash: Unsplash
-    minio: Minio
+    s3: S3
     debug_mode: bool = False
     timeout: Annotated[conint(gt=0), "Таймаут"] | None = None
 
