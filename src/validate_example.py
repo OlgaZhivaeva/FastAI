@@ -4,6 +4,7 @@ from views.create_site import CreateSiteRequest, CreateSiteResponse
 from views.generate_html import SiteGenerationRequest
 from views.get_site import SiteResponse
 from views.get_user import UserDetailsResponse
+from views.get_user_sites import GeneratedSitesResponse
 
 
 def validate_schema_example(model):
@@ -17,7 +18,13 @@ def validate_schema_example(model):
 
 
 def main():
-    pydantic_models = [UserDetailsResponse, SiteResponse, CreateSiteRequest, CreateSiteResponse, SiteGenerationRequest]
+    pydantic_models = [
+        UserDetailsResponse,
+        GeneratedSitesResponse,
+        SiteResponse, CreateSiteRequest,
+        CreateSiteResponse,
+        SiteGenerationRequest,
+    ]
     for model in pydantic_models:
         try:
             validate_schema_example(model=model)

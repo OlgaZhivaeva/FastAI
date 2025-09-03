@@ -23,12 +23,12 @@ class UserDetailsResponse(BaseModel):
     model_config = response_config_dict | ConfigDict(
         json_schema_extra={
             "example": {
-                "profile_id": 123,
+                "profileId": 123,
                 "email": "IIvanov@mail.ru",
                 "username": "Иван",
-                "registered_at": "2024-01-01T00:00:00",
-                "updated_at": "2025-01-08T00:00:00",
-                "is_active": False,
+                "registeredAt": "2024-01-01T00:00:00",
+                "updatedAt": "2025-01-08T00:00:00",
+                "isActive": False,
             },
         },
     )

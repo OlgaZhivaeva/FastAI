@@ -22,30 +22,30 @@ class SiteResponse(BaseModel):
     """Дата создания сайта"""
     updated_at: Annotated[datetime, PastDatetime]
     """Дата последнего обновления сайта"""
-    html_code_download_url: AnyHttpUrl | None = None  # TODO заменить на AnyHttpUrl
+    html_code_download_url: AnyHttpUrl | None = None
     """URL для скачивания HTML-кода сайта """
-    html_code_url: AnyHttpUrl | None = None  # TODO заменить на AnyHttUrlp
+    html_code_url: AnyHttpUrl | None = None
     """URL для просмотра HTML-кода сайта"""
-    screenshot_url: AnyHttpUrl | None = None  # TODO заменить на AnyHttpUrl
+    screenshot_url: AnyHttpUrl | None = None
     """URL превью сайта"""
 
     model_config = response_config_dict | ConfigDict(
         json_schema_extra={
             "example": {
-                "created_at": "2025-01-01T00:00:00+00:00",
-                "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
-                "html_code_url": "http://example.com/media/index.html",
+                "createdAt": "2025-06-15T18:29:56+00:00",
+                "htmlCodeDownloadUrl": "http://example.com/media/index.html?response-content-disposition=attachment",
+                "htmlCodeUrl": "http://example.com/media/index.html",
                 "id": 1,
                 "prompt": "Сайт любителей играть в домино",
-                "screenshot_url": "http://example.com/media/index.png",
+                "screenshotUrl": "http://example.com/media/index.png",
                 "title": "Фан клуб Домино",
-                "updated_at": "2025-01-01T00:00:00+00:00",
+                "updatedAt": "2025-06-15T18:29:56+00:00",
             },
         },
     )
 
 
-async def mock_get_site(site_id: int, http_request: Request):
+def mock_get_site(site_id: int, http_request: Request):
     """/frontend-api/{site_id}"""
     title = getattr(
         http_request.app.state,
@@ -76,7 +76,6 @@ async def mock_get_site(site_id: int, http_request: Request):
         host="127.0.0.1",
         port=9000,
         path=f"{http_request.app.state.settings.s3.bucket}/{http_request.app.state.settings.s3.key}",
-        query_params={"response-content-disposition": "inline"},
     )
     html_code_url = str(url_builder)
 

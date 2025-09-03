@@ -17,7 +17,7 @@ class SiteGenerationRequest(BaseModel):
     model_config = request_config_dict | ConfigDict(
         json_schema_extra={
             "example": {
-                "prompt": "Сайт любителей морских свинок",
+                "prompt": "Сайт любителей играть в домино",
             },
         },
     )

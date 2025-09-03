@@ -1,14 +1,19 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, PastDatetime, StringConstraints
+from pydantic import AnyHttpUrl, BaseModel, ConfigDict, PastDatetime, StringConstraints
+from pydantic.alias_generators import to_camel
 
 response_config_dict = ConfigDict(
     extra="forbid",
     use_attribute_docstrings=True,
+    alias_generator=to_camel,
+    populate_by_name=True,
 )
 request_config_dict = ConfigDict(
     use_attribute_docstrings=True,
+    alias_generator=to_camel,
+    populate_by_name=True,
 )
 
 
@@ -26,9 +31,15 @@ class Site(BaseModel):
     """Дата создания сайта"""
     updated_at: Annotated[datetime, PastDatetime]
     """Дата последнего обновления сайта"""
-    html_code_download_url: str | None = None  # TODO заменить на AnyHttpUrl
+    html_code_download_url: AnyHttpUrl | None = None
     """URL для скачивания HTML-кода сайта """
-    html_code_url: str | None = None  # TODO заменить на AnyHttpUrl
+    html_code_url: AnyHttpUrl | None = None
     """URL для просмотра HTML-кода сайта"""
-    screenshot_url: str | None = None  # TODO заменить на AnyHttpUrl
+    screenshot_url: AnyHttpUrl | None = None
     """URL превью сайта"""
+
+    model_config = ConfigDict(
+        use_attribute_docstrings=True,
+        alias_generator=to_camel,
+        populate_by_name=True,
+    )
