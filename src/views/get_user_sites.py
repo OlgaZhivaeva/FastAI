@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from fastapi import Request
 from furl import furl
 from pydantic import BaseModel, ConfigDict
@@ -45,31 +47,35 @@ def mock_get_user_sites(http_request: Request):
         'created_at',
         "2025-01-01T00:00:00",
     )
+    parsed_url = urlparse(http_request.app.state.settings.s3.endpoint_url)
+    scheme = parsed_url.scheme
+    host = parsed_url.hostname
+    port = parsed_url.port
+
     url_builder = furl(
-        scheme="http",
-        host="127.0.0.1",
-        port=9000,
+        scheme=scheme,
+        host=host,
+        port=port,
         path=f"{http_request.app.state.settings.s3.bucket}/{http_request.app.state.settings.s3.key}",
         query_params={"response-content-disposition": "attachment"},
     )
     html_code_download_url = str(url_builder)
 
     url_builder = furl(
-        scheme="http",
-        host="127.0.0.1",
-        port=9000,
+        scheme=scheme,
+        host=host,
+        port=port,
         path=f"{http_request.app.state.settings.s3.bucket}/{http_request.app.state.settings.s3.key}",
         query_params={"response-content-disposition": "inline"},
     )
     html_code_url = str(url_builder)
 
-    screenshot = "index.png"
+    file_name = "index.png"
     url_builder = furl(
-        scheme="http",
-        host="127.0.0.1",
-        port=9000,
-        path=f"{http_request.app.state.settings.s3.bucket}/{screenshot}",
-        query_params={"response-content-disposition": "inline"},
+        scheme=scheme,
+        host=host,
+        port=port,
+        path=f"{http_request.app.state.settings.s3.bucket}/{file_name}",
     )
     screenshot_url = str(url_builder)
 

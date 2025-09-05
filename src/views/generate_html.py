@@ -3,6 +3,7 @@ from datetime import datetime
 import anyio
 import httpx
 from fastapi import Request
+from gotenberg_api import GotenbergServerError, ScreenshotHTMLRequest
 from html_page_generator import AsyncDeepseekClient, AsyncPageGenerator, AsyncUnsplashClient
 from pydantic import BaseModel, ConfigDict
 from starlette.responses import StreamingResponse
@@ -21,6 +22,36 @@ class SiteGenerationRequest(BaseModel):
             },
         },
     )
+
+
+async def get_screenshot(html_content, http_request):
+    try:
+        async with httpx.AsyncClient(
+            base_url=http_request.app.state.gotenberg.base_url,
+            timeout=http_request.app.state.gotenberg.timeout,
+        ) as client:
+            screenshot_bytes = await ScreenshotHTMLRequest(
+                index_html=html_content,
+                width=http_request.app.state.gotenberg.width,
+                format=http_request.app.state.gotenberg.format,
+                wait_delay=http_request.app.state.gotenberg.wait_delay,
+            ).asend(client)
+
+    except GotenbergServerError as err:
+        print(f"Ошибка при генерации скриншота: {err}")
+        screenshot_bytes = None
+    return screenshot_bytes
+
+
+async def upload_screenshot(screenshot, http_request: Request):
+    upload_params = {
+        'Bucket': http_request.app.state.settings.s3.bucket,
+        'Key': "index.png",
+        'Body': screenshot,
+        'ContentType': 'image/png',
+        'ContentDisposition': 'attachment',
+    }
+    await http_request.app.state.s3_client.put_object(**upload_params)
 
 
 async def upload_html_page(html_content, http_request: Request):
@@ -67,6 +98,10 @@ async def mock_generate_html(
 
                 html_content = generator.html_page.html_code
                 await upload_html_page(html_content, http_request)
+
+                screenshot = await get_screenshot(html_content, http_request)
+                if screenshot:
+                    await upload_screenshot(screenshot, http_request)
 
                 http_request.app.state.user_prompt = user_prompt
                 http_request.app.state.created_at = datetime.now()

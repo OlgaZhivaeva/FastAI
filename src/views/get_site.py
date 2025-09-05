@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Annotated
+from urllib.parse import urlparse
 
 from fastapi import Request
 from furl import furl
@@ -62,29 +63,34 @@ def mock_get_site(site_id: int, http_request: Request):
         "created_at",
         "2025-01-01T00:00:00",
     )
+    parsed_url = urlparse(http_request.app.state.settings.s3.endpoint_url)
+    scheme = parsed_url.scheme
+    host = parsed_url.hostname
+    port = parsed_url.port
+
     url_builder = furl(
-        scheme="http",
-        host="127.0.0.1",
-        port=9000,
+        scheme=scheme,
+        host=host,
+        port=port,
         path=f"{http_request.app.state.settings.s3.bucket}/{http_request.app.state.settings.s3.key}",
         query_params={"response-content-disposition": "attachment"},
     )
     html_code_download_url = str(url_builder)
 
     url_builder = furl(
-        scheme="http",
-        host="127.0.0.1",
-        port=9000,
+        scheme=scheme,
+        host=host,
+        port=port,
         path=f"{http_request.app.state.settings.s3.bucket}/{http_request.app.state.settings.s3.key}",
     )
     html_code_url = str(url_builder)
 
-    screenshot = "index.png"
+    file_name = "index.png"
     url_builder = furl(
-        scheme="http",
-        host="127.0.0.1",
-        port=9000,
-        path=f"{http_request.app.state.settings.s3.bucket}/{screenshot}",
+        scheme=scheme,
+        host=host,
+        port=port,
+        path=f"{http_request.app.state.settings.s3.bucket}/{file_name}",
         query_params={"response-content-disposition": "inline"},
     )
     screenshot_url = str(url_builder)

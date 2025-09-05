@@ -95,9 +95,14 @@ S3__AWS_ACCESS_KEY_ID="Идентификатор ключа доступа AWS 
 S3__AWS_SECRET_ACCESS_KEY="Секретный ключ доступа AWS для аутентификации в MinIO"
 S3__BUCKET="Имя бакета в MinIO"
 S3__KEY="Ключ (имя файла) в бакете"
-#S3__MAX_POOL_CONNECTIONS="Значение по умолчанию 50"
-#S3__CONNECT_TIMEOUT="Значение по умолчанию 10"
-#S3__READ_TIMEOUT="Значение по умолчанию 30"
+S3__MAX_POOL_CONNECTIONS="Значение по умолчанию 50"
+S3__CONNECT_TIMEOUT="Значение по умолчанию 10"
+S3__READ_TIMEOUT="Значение по умолчанию 30"
+GOTENBERG__BASE_URL="Базовый адрес Gotenberg API"
+GOTENBERG__TIMEAUT="Значение по умолчанию 15"
+GOTENBERG__WIDTH="Значение по умолчанию 1000"
+GOTENBERG__FORMAT="Значение по умолчанию png"
+GOTENBERG__WAIT_DELAY="Значение по умолчанию 5"
 ```
 Заполните значения переменных окружения, необходимые для работы приложения.
 
@@ -158,6 +163,35 @@ S3__CONNECT_TIMEOUT=10
 S3__READ_TIMEOUT=30
 ```
 
+### Настройки для Gotenberg API
+
+GOTENBERG__BASE_URL: Базовый адрес Gotenberg API, обычно "http://localhost:3000"
+
+GOTENBERG__TIMEAUT: Таймаут асинхронного клиента ддля библиотеки httpx. Значение по умолчанию 15.
+
+GOTENBERG__WIDTH: Ширина скриншота в пикселях. Значение по умолчанию 1000.
+
+GOTENBERG__FORMAT: Формат скриншота (может принимать значения jpeg, png, webp). Значение по умолчанию png.
+
+GOTENBERG__WAIT_DELAY: Время ожидания завершения анимаций на html-странице. Значение по умолчанию 5.
+
+Важно: время ожидания завершения анимаций должно быть меньше таймаута асинхронного клиента, иначе библиотека всегда будет возвращать TimeoutError.
+Рекомендуемая разница между временем ожидания и таймаутом составляет от 2 до 5 секунд.
+
+
+Пример настроек для Gotenberg API:
+
+```
+GOTENBERG__BASE_URL="http://localhost:3000"
+GOTENBERG__TIMEAUT=15
+GOTENBERG__WIDTH=1000
+GOTENBERG__FORMAT="png"
+GOTENBERG__WAIT_DELAY=5
+```
+
+
+### Обновите файл .gitignore
+
 Чтобы предотвратить попадание файла `.env` в ваш репозиторий, добавьте следующую строку в файл .gitignore:
 ```.gitignore
 .env
@@ -188,7 +222,7 @@ New-Item -ItemType Directory -Path "C:\minio\data"
 Invoke-WebRequest -Uri "https://dl.min.io/client/mc/release/windows-amd64/mc.exe" -OutFile "C:\mc.exe"
 ```
 
-Запустить MinIO:
+Запустите MinIO:
 ```powershell
 & "C:\minio\minio.exe" server C:\minio\data
 ```
@@ -209,6 +243,14 @@ mc anonymous set public myminio/html-bucket
 ```
 Вручную загрузите в бакет файлы `index.html` и `index.png`.
 Это позволяет использовать ссылки на файлы в бакете при реализации эндпоинтов
+
+
+## Как запустить Gotenberg
+
+Чтобы запустить стандартный Docker-контейнер Gotenberg, выполните команду:
+```commandline
+docker run --rm -p "127.0.0.1:3000:3000" gotenberg/gotenberg:8
+```
 
 
 ## Как вести разработку
