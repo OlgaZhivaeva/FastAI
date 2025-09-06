@@ -30,14 +30,14 @@ class CreateSiteResponse(BaseModel):
     model_config = response_config_dict | ConfigDict(
         json_schema_extra={
             "example": {
-                "created_at": "2025-06-15T18:29:56",
-                "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
-                "html_code_url": "http://example.com/media/index.html",
+                "createdAt": "2025-06-15T18:29:56+00:00",
+                "htmlCodeDownloadUrl": "http://example.com/media/index.html?response-content-disposition=attachment",
+                "htmlCodeUrl": "http://example.com/media/index.html",
                 "id": 1,
                 "prompt": "Сайт любителей играть в домино",
-                "screenshot_url": "http://example.com/media/index.png",
+                "screenshotUrl": "http://example.com/media/index.png",
                 "title": "Фан клуб Домино",
-                "updated_at": "2025-06-15T18:29:56",
+                "updatedAt": "2025-06-15T18:29:56+00:00",
             },
         },
     )
