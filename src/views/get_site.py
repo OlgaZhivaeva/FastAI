@@ -47,7 +47,7 @@ class SiteResponse(BaseModel):
 
 
 def mock_get_site(site_id: int, http_request: Request):
-    """/frontend-api/{site_id}"""
+    """get /frontend-api/{site_id}"""
     title = getattr(
         http_request.app.state,
         'title',

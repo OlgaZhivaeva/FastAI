@@ -32,7 +32,7 @@ class GeneratedSitesResponse(BaseModel):
 
 
 def mock_get_user_sites(http_request: Request):
-    """/frontend-api/sites/my"""
+    """get /frontend-api/sites/my"""
     title = getattr(
         http_request.app.state,
         'title',

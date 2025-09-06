@@ -8,7 +8,7 @@ from views.get_user_sites import GeneratedSitesResponse
 
 
 def validate_schema_example(model):
-    """Проверка корректности примера для Pydantic модели"""
+    """Проверить корректность примеров для Pydantic моделей"""
     example = model.model_config.get("json_schema_extra", {}).get("example")
     if example:
         try:

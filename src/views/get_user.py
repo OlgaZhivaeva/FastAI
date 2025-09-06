@@ -35,7 +35,7 @@ class UserDetailsResponse(BaseModel):
 
 
 def mock_get_user():
-    """/frontend-api/users/me"""
+    """get /frontend-api/users/me"""
     return {
         "profile_id": 1,
         "email": "IIvanov@mail.ru",

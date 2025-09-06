@@ -24,17 +24,18 @@ class SiteGenerationRequest(BaseModel):
     )
 
 
-async def get_screenshot(html_content, http_request):
+async def get_screenshot(html_content: str, http_request: Request) -> bytes | None:
+    """Сгенерировать скриншот из HTML контента, используя Gotenberg."""
     try:
         async with httpx.AsyncClient(
-            base_url=http_request.app.state.gotenberg.base_url,
-            timeout=http_request.app.state.gotenberg.timeout,
+            base_url=str(http_request.app.state.settings.gotenberg.base_url),
+            timeout=http_request.app.state.settings.gotenberg.timeout,
         ) as client:
             screenshot_bytes = await ScreenshotHTMLRequest(
                 index_html=html_content,
-                width=http_request.app.state.gotenberg.width,
-                format=http_request.app.state.gotenberg.format,
-                wait_delay=http_request.app.state.gotenberg.wait_delay,
+                width=http_request.app.state.settings.gotenberg.width,
+                format=http_request.app.state.settings.gotenberg.format,
+                wait_delay=http_request.app.state.settings.gotenberg.wait_delay,
             ).asend(client)
 
     except GotenbergServerError as err:
@@ -43,7 +44,8 @@ async def get_screenshot(html_content, http_request):
     return screenshot_bytes
 
 
-async def upload_screenshot(screenshot, http_request: Request):
+async def upload_screenshot(screenshot: bytes, http_request: Request) -> None:
+    """Загрузить скриншот в MinIO S3 хранилище."""
     upload_params = {
         'Bucket': http_request.app.state.settings.s3.bucket,
         'Key': "index.png",
@@ -54,7 +56,8 @@ async def upload_screenshot(screenshot, http_request: Request):
     await http_request.app.state.s3_client.put_object(**upload_params)
 
 
-async def upload_html_page(html_content, http_request: Request):
+async def upload_html_page(html_content: str, http_request: Request) -> None:
+    """Загрузить HTML контент в MinIO S3 хранилище."""
     upload_params = {
         'Bucket': http_request.app.state.settings.s3.bucket,
         'Key': http_request.app.state.settings.s3.key,
@@ -69,21 +72,21 @@ async def mock_generate_html(
     site_id: int,
     request: SiteGenerationRequest,
     http_request: Request,
-):
-    """/frontend-api/{site_id}/generate"""
+) -> StreamingResponse:
+    """post /frontend-api/{site_id}/generate"""
     async def html_generator(user_prompt: str):
         try:
-            async with (
-                AsyncUnsplashClient.setup(
-                    http_request.app.state.settings.unsplash.client_id,
-                    timeout=3,
-                ),
-                AsyncDeepseekClient.setup(
-                    http_request.app.state.settings.deep_seek.api_key,
-                    http_request.app.state.settings.deep_seek.base_url,
-                ),
-            ):
-                with anyio.CancelScope(shield=True):
+            with anyio.CancelScope(shield=True):
+                async with (
+                    AsyncUnsplashClient.setup(
+                        http_request.app.state.settings.unsplash.client_id,
+                        timeout=3,
+                    ),
+                    AsyncDeepseekClient.setup(
+                        http_request.app.state.settings.deep_seek.api_key,
+                        http_request.app.state.settings.deep_seek.base_url,
+                    ),
+                ):
                     generator = AsyncPageGenerator(debug_mode=http_request.app.state.settings.debug_mode)
                     title_saved = False
                     async for chunk in generator(user_prompt):
