@@ -80,7 +80,7 @@ async def mock_generate_html(
                 async with (
                     AsyncUnsplashClient.setup(
                         http_request.app.state.settings.unsplash.client_id,
-                        timeout=3,
+                        timeout=http_request.app.state.settings.unsplash.timeout,
                     ),
                     AsyncDeepseekClient.setup(
                         http_request.app.state.settings.deep_seek.api_key,

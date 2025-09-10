@@ -13,6 +13,7 @@ class DeepSeek(BaseModel):
 class Unsplash(BaseModel):
     client_id: SecretStr
     max_connections: Annotated[conint(gt=0), "Максимальное количество подключений"] | None = None
+    timeout: Annotated[conint(gt=0), "Таймаут"] = 3
 
 
 class S3(BaseModel):
