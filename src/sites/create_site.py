@@ -3,7 +3,7 @@ from typing import Annotated
 
 from pydantic import AnyHttpUrl, BaseModel, ConfigDict, PastDatetime, StringConstraints
 
-from reuseble_types import request_config_dict, response_config_dict
+from src.reuseble_types import request_config_dict, response_config_dict
 
 
 class CreateSiteResponse(BaseModel):
@@ -11,7 +11,7 @@ class CreateSiteResponse(BaseModel):
     """Уникальный идентификатор сайта"""
     title: Annotated[
         str,
-        StringConstraints(max_length=128),
+        StringConstraints(max_length=12800),
     ]
     """Название сайта"""
     prompt: str

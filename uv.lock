@@ -285,8 +285,6 @@ version = "0.0.1"
 source = { virtual = "." }
 dependencies = [
     { name = "aioboto3" },
-    { name = "aiofiles" },
-    { name = "aiohttp" },
     { name = "editorconfig-checker" },
     { name = "fastapi", extra = ["standard"] },
     { name = "furl" },
@@ -300,8 +298,6 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "aioboto3", specifier = ">=15.1.0" },
-    { name = "aiofiles", specifier = ">=24.1.0" },
-    { name = "aiohttp", specifier = ">=3.12.15" },
     { name = "editorconfig-checker", specifier = "==3.2.1" },
     { name = "fastapi", extras = ["standard"], specifier = "==0.115.12" },
     { name = "furl", specifier = ">=2.1.4" },

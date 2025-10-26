@@ -22,7 +22,7 @@ class Site(BaseModel):
     """Уникальный идентификатор сайта"""
     title: Annotated[
         str,
-        StringConstraints(max_length=254),
+        StringConstraints(max_length=25400),
     ]
     """Название сайта"""
     prompt: str

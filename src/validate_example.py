@@ -1,10 +1,10 @@
 from pydantic import ValidationError
 
-from views.create_site import CreateSiteRequest, CreateSiteResponse
-from views.generate_html import SiteGenerationRequest
-from views.get_site import SiteResponse
-from views.get_user import UserDetailsResponse
-from views.get_user_sites import GeneratedSitesResponse
+from src.sites.create_site import CreateSiteRequest, CreateSiteResponse
+from src.sites.generate_html import SiteGenerationRequest
+from src.sites.get_site import SiteResponse
+from src.sites.get_user_sites import GeneratedSitesResponse
+from src.users.get_user import UserDetailsResponse
 
 
 def validate_schema_example(model):

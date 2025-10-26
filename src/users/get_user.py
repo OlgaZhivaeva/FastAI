@@ -3,7 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, EmailStr, PastDatetime, StringConstraints
 
-from reuseble_types import response_config_dict
+from src.reuseble_types import response_config_dict
 
 
 class UserDetailsResponse(BaseModel):

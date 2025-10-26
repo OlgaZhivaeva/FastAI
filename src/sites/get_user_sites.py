@@ -4,7 +4,7 @@ from fastapi import Request
 from furl import furl
 from pydantic import BaseModel, ConfigDict
 
-from reuseble_types import Site, response_config_dict
+from src.reuseble_types import Site, response_config_dict
 
 
 class GeneratedSitesResponse(BaseModel):

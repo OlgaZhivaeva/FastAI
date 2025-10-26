@@ -1,19 +1,19 @@
 from typing import Annotated, Literal
 
-from pydantic import AnyHttpUrl, BaseModel, SecretStr, conint
+from pydantic import AnyHttpUrl, BaseModel, PositiveInt, SecretStr, conint
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class DeepSeek(BaseModel):
     api_key: SecretStr
-    max_connections: Annotated[conint(gt=0), "Максимальное количество подключений"] | None = None
+    max_connections: PositiveInt | None = None
     base_url: str
 
 
 class Unsplash(BaseModel):
     client_id: SecretStr
-    max_connections: Annotated[conint(gt=0), "Максимальное количество подключений"] | None = None
-    timeout: Annotated[conint(gt=0), "Таймаут"] = 3
+    max_connections: PositiveInt | None = None
+    timeout: PositiveInt = 3
 
 
 class S3(BaseModel):
@@ -22,17 +22,17 @@ class S3(BaseModel):
     aws_secret_access_key: str
     bucket: str
     key: str
-    max_pool_connections: Annotated[conint(gt=0), "Максимальное количество подключений"] = 50
-    connect_timeout: Annotated[conint(gt=0), "Таймаут подключения"] = 10
-    read_timeout: Annotated[conint(gt=0), "Таймаут чтения"] = 30
+    max_pool_connections: PositiveInt = 50
+    connect_timeout: PositiveInt = 10
+    read_timeout: PositiveInt = 30
 
 
 class Gotenberg(BaseModel):
     base_url: AnyHttpUrl
-    timeout: Annotated[conint(gt=0), "Таймаут"] = 15
-    width: Annotated[conint(gt=0), "Ширина скриншота"] = 1000
+    timeout: PositiveInt = 15
+    width: PositiveInt = 1000
     format: Literal["jpeg", "png", "webp"] = "png"
-    wait_delay: Annotated[conint(gt=0), "Время ожидания"] = 5
+    wait_delay: PositiveInt = 5
 
 
 class AppSettings(BaseSettings):
