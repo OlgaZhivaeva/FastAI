@@ -63,7 +63,7 @@ class CreateSiteRequest(BaseModel):
 
 
 def mock_create_site(request: CreateSiteRequest):
-    """post /frontend-api/create"""
+    """post /frontend-api/sites/create"""
     return {
         "created_at": "2025-01-01T12:00:00",
         "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",

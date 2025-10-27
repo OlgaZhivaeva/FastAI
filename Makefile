@@ -4,8 +4,5 @@ lint: ## Проверяет линтерами код в репозитории
 format: ## Запуск автоформатера
 	ruff check --fix ./src
 
-validate-example: ## Проверяет корректность примеров в схеме Pydantic моделей
-	python ./src/validate_example.py
-
 help: ## Отображает список доступных команд и их описания
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

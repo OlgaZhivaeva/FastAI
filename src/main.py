@@ -1,6 +1,5 @@
 import logging
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from pathlib import Path
 
 import aioboto3
@@ -26,7 +25,7 @@ settings = AppSettings()
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def lifespan(app: FastAPI) -> AbstractAsyncContextManager[None]:
     app.state.settings = settings
 
     async with (
