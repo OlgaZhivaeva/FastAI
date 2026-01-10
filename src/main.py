@@ -3,6 +3,7 @@ from contextlib import AbstractAsyncContextManager, asynccontextmanager
 from pathlib import Path
 
 import aioboto3
+import httpx
 from aiobotocore.config import AioConfig
 from fastapi import FastAPI
 from html_page_generator import AsyncDeepseekClient, AsyncUnsplashClient
@@ -49,8 +50,13 @@ async def lifespan(app: FastAPI) -> AbstractAsyncContextManager[None]:
             settings.deep_seek.api_key,
             settings.deep_seek.base_url,
         ),
+        httpx.AsyncClient(
+            base_url=str(settings.gotenberg.base_url),
+            timeout=settings.gotenberg.timeout,
+        ) as gotenberg_client,
     ):
         app.state.s3_client = s3_client
+        app.state.gotenberg_client = gotenberg_client
         yield
 
 
