@@ -84,7 +84,7 @@ async def generate_html_content(user_prompt: str, http_request: Request) -> Asyn
         logger.error(f"Ошибка при генерации скриншота: {err}", exc_info=True)
 
 
-def build_url(http_request: Request, file_name: str = None, disposition: str = None) -> str:
+def generate_s3_url(http_request: Request, file_name: str = None, disposition: str = None) -> str:
     s3 = http_request.app.state.settings.s3
 
     url = furl(s3.endpoint_url)

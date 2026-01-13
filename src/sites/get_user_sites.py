@@ -2,7 +2,7 @@ from fastapi import Request
 from pydantic import BaseModel, ConfigDict
 
 from src.reuseble_types import Site, response_config_dict
-from src.sites.service import build_url
+from src.sites.service import generate_s3_url
 
 
 class GeneratedSitesResponse(BaseModel):
@@ -31,9 +31,9 @@ class GeneratedSitesResponse(BaseModel):
 
 def mock_get_user_sites(http_request: Request):
     """get /frontend-api/sites/my"""
-    html_code_download_url = build_url(http_request, disposition="attachment")
-    html_code_url = build_url(http_request, disposition="inline")
-    screenshot_url = build_url(http_request, file_name="index.png")
+    html_code_download_url = generate_s3_url(http_request, disposition="attachment")
+    html_code_url = generate_s3_url(http_request, disposition="inline")
+    screenshot_url = generate_s3_url(http_request, file_name="index.png")
 
     return {
         "sites":
