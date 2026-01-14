@@ -8,6 +8,8 @@ from furl import furl
 from gotenberg_api import GotenbergServerError, ScreenshotHTMLRequest
 from html_page_generator import AsyncPageGenerator
 
+from src.settings import S3
+
 logger = logging.getLogger(__name__)
 
 
@@ -84,12 +86,10 @@ async def generate_html_content(user_prompt: str, http_request: Request) -> Asyn
         logger.error(f"Ошибка при генерации скриншота: {err}", exc_info=True)
 
 
-def generate_s3_url(http_request: Request, file_name: str = None, disposition: str = None) -> str:
-    s3 = http_request.app.state.settings.s3
-
-    url = furl(s3.endpoint_url)
-    key = file_name if file_name else s3.key
-    url.path = f"/{s3.bucket}/{key}"
+def generate_s3_url(settings_s3: S3, file_name: str = None, disposition: str = None) -> str:
+    url = furl(settings_s3.endpoint_url)
+    key = file_name if file_name else settings_s3.key
+    url.path = f"/{settings_s3.bucket}/{key}"
 
     if disposition:
         url.args['response-content-disposition'] = disposition
