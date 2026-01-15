@@ -25,7 +25,16 @@ async def generate_html_stream(
     http_request: Request,
 ) -> StreamingResponse:
     """post /frontend-api/sites/{site_id}/generate"""
+    state = http_request.app.state
+
     return StreamingResponse(
-        generate_html_content(user_prompt=request.prompt, http_request=http_request),
+        generate_html_content(
+            user_prompt=request.prompt,
+            s3_client=state.s3_client,
+            s3_settings=state.settings.s3,
+            gotenberg_client=state.gotenberg_client,
+            gotenberg_settings=state.settings.gotenberg,
+            debug_mode=state.settings.debug_mode,
+        ),
         media_type='text/html',
     )
