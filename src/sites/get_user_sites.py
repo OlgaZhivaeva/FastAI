@@ -1,7 +1,7 @@
 from fastapi import Request
 from pydantic import BaseModel, ConfigDict
 
-from src.reuseble_types import SITE_EXAMPLE, Site, response_config_dict
+from src.reuseble_types import SITE_EXAMPLE, Site, get_site_example_json, response_config_dict
 from src.sites.service import generate_s3_url
 
 
@@ -12,18 +12,7 @@ class GeneratedSitesResponse(BaseModel):
     model_config = response_config_dict | ConfigDict(
         json_schema_extra={
             "example": {
-                "sites": [
-                    {
-                        "createdAt": "2025-06-15T18:29:56",
-                        "htmlCodeDownloadUrl": "http://example.com/media/index.html?response-content-disposition=attachment",
-                        "htmlCodeUrl": "http://example.com/media/index.html",
-                        "id": 1,
-                        "prompt": "Сайт любителей играть в домино",
-                        "screenshotUrl": "http://example.com/media/index.png",
-                        "title": "Фан клуб Домино",
-                        "updatedAt": "2025-06-15T18:29:56",
-                    },
-                ],
+                "sites": [get_site_example_json()],
             },
         },
     )

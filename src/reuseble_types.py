@@ -54,3 +54,7 @@ class Site(BaseModel):
         alias_generator=to_camel,
         populate_by_name=True,
     )
+
+
+def get_site_example_json():
+    return Site(**SITE_EXAMPLE).model_dump(by_alias=True, mode="json")
