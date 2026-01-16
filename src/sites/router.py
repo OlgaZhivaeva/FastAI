@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from starlette.responses import HTMLResponse
 
-from src.sites.create_site import CreateSiteResponse, mock_create_site
+from src.sites.create_site import mock_create_site
 from src.sites.generate_html import generate_html_stream
 from src.sites.get_site import SiteResponse, mock_get_site
 from src.sites.get_user_sites import GeneratedSitesResponse, mock_get_user_sites
@@ -28,7 +28,7 @@ sites_router.post(
     "/create",
     summary="Создать сайт",
     response_description="Данные для генерации сайта",
-    response_model=CreateSiteResponse,
+    response_model=SiteResponse,
 )(mock_create_site)
 
 
