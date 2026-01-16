@@ -4,6 +4,17 @@ from typing import Annotated
 from pydantic import AnyHttpUrl, BaseModel, ConfigDict, PastDatetime, StringConstraints
 from pydantic.alias_generators import to_camel
 
+SITE_EXAMPLE = {
+    "created_at": "2025-01-01T00:00:00",
+    "html_code_download_url": "http://example.com/media/index.html?response-content-disposition=attachment",
+    "html_code_url": "http://example.com/media/index.html",
+    "id": 1,
+    "prompt": "Промпт пользователя",
+    "screenshot_url": "http://example.com/media/index.png",
+    "title": "Название сайта",
+    "updated_at": "2025-01-01T00:00:00",
+}
+
 response_config_dict = ConfigDict(
     extra="forbid",
     use_attribute_docstrings=True,
