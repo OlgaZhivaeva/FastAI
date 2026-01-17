@@ -3,6 +3,7 @@ from collections.abc import AsyncGenerator
 
 import anyio
 import httpx
+from fastapi import HTTPException, status
 from furl import furl
 from gotenberg_api import GotenbergServerError, ScreenshotHTMLRequest
 from html_page_generator import AsyncPageGenerator
@@ -89,8 +90,16 @@ async def generate_html_content(
             )
     except (httpx.ReadTimeout, httpx.ConnectTimeout, httpx.TimeoutException, httpx.HTTPStatusError) as err:
         logger.error(f"Ошибка при генерации HTML: {err}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Сервис временно недоступен. Попробуйте позже.",
+        )
     except GotenbergServerError as err:
         logger.error(f"Ошибка при генерации скриншота: {err}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка при генерации скриншота.",
+        )
 
 
 def generate_s3_url(settings_s3: S3, file_name: str = None, disposition: str = None) -> str:
