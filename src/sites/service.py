@@ -49,14 +49,16 @@ async def upload_to_s3(
 
 
 async def generate_html_content(
+    site_id: int,
     user_prompt: str,
-    s3_client: any,
-    s3_settings: S3,
-    gotenberg_client: httpx.AsyncClient,
-    gotenberg_settings: Gotenberg,
-    debug_mode: bool,
+    app_state: any,
 ) -> AsyncGenerator[str]:
     """Сгенерировать HTML контент по промпту пользователя"""
+    s3_client = app_state.s3_client
+    s3_settings = app_state.settings.s3
+    gotenberg_client = app_state.gotenberg_client
+    gotenberg_settings = app_state.settings.gotenberg
+    debug_mode = app_state.settings.debug_mode
     try:
         generator = AsyncPageGenerator(debug_mode=debug_mode)
 
@@ -72,9 +74,9 @@ async def generate_html_content(
             html_content = generator.html_page.html_code
             await upload_to_s3(
                 body=html_content,
-                key=s3_settings.key,
+                key=f"{site_id}/{s3_settings.key}",
                 content_type="text/html",
-                content_disposition='attachment',
+                content_disposition="attachment",
                 s3_client=s3_client,
                 s3_settings=s3_settings,
             )
@@ -82,9 +84,9 @@ async def generate_html_content(
             screenshot = await get_screenshot(html_content, gotenberg_client, gotenberg_settings)
             await upload_to_s3(
                 body=screenshot,
-                key='index.png',
-                content_type='image/png',
-                content_disposition='attachment',
+                key=f"/{site_id}/index.png",
+                content_type="image/png",
+                content_disposition="attachment",
                 s3_client=s3_client,
                 s3_settings=s3_settings,
             )
@@ -102,10 +104,10 @@ async def generate_html_content(
         )
 
 
-def generate_s3_url(settings_s3: S3, file_name: str = None, disposition: str = None) -> str:
-    url = furl(settings_s3.endpoint_url)
-    key = file_name if file_name else settings_s3.key
-    url.path = f"/{settings_s3.bucket}/{key}"
+def generate_s3_url(site_id: int, s3_settings: S3, file_name: str = None, disposition: str = None) -> str:
+    url = furl(s3_settings.endpoint_url)
+    key = f"{site_id}/{file_name}" if file_name else f"{site_id}/{s3_settings.key}"
+    url.path = f"/{s3_settings.bucket}/{key}"
 
     if disposition:
         url.args['response-content-disposition'] = disposition

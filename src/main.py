@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI) -> AbstractAsyncContextManager[None]:
                 read_timeout=settings.s3.read_timeout,
             ),
             region_name='us-east-1',
-            endpoint_url=settings.s3.endpoint_url,
+            endpoint_url=str(settings.s3.endpoint_url),
             aws_access_key_id=settings.s3.aws_access_key_id,
             aws_secret_access_key=settings.s3.aws_secret_access_key,
         ) as s3_client,
@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI) -> AbstractAsyncContextManager[None]:
         ),
         AsyncDeepseekClient.setup(
             settings.deep_seek.api_key,
-            settings.deep_seek.base_url,
+            str(settings.deep_seek.base_url),
         ),
         httpx.AsyncClient(
             base_url=str(settings.gotenberg.base_url),
