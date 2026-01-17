@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class DeepSeek(BaseModel):
     api_key: SecretStr
     max_connections: PositiveInt | None = None
-    base_url: str
+    base_url: AnyHttpUrl
 
 
 class Unsplash(BaseModel):
@@ -17,7 +17,7 @@ class Unsplash(BaseModel):
 
 
 class S3(BaseModel):
-    endpoint_url: str
+    endpoint_url: AnyHttpUrl
     aws_access_key_id: str
     aws_secret_access_key: str
     bucket: str
