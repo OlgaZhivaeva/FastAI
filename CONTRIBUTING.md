@@ -72,6 +72,74 @@ $ source .venv/bin/activate  # для Linux
 $ .\.venv\Scripts\activate  # Для Windows
 ```
 
+## Как установить и запустить MinIO
+
+Скачать MinIO можно на [официальном сайте MinIO](https://www.min.io/download?platform=windows)
+
+### Инструкция для Windows
+
+Откройте PowerShell от имени администратора. Создайте папку для MinIO:
+```powershell
+New-Item -ItemType Directory -Path "C:\minio"
+```
+
+Загрузите MinIO:
+```powershell
+Invoke-WebRequest -Uri "https://dl.min.io/server/minio/release/windows-amd64/minio.exe" -OutFile "C:\minio\minio.exe"
+```
+Создайте папку для данных:
+```powershell
+New-Item -ItemType Directory -Path "C:\minio\data"
+```
+
+Скачайте утилиту mc (MinIO Client):
+```powershell
+Invoke-WebRequest -Uri "https://dl.min.io/client/mc/release/windows-amd64/mc.exe" -OutFile "C:\mc.exe"
+```
+
+Запустите MinIO:
+```powershell
+& "C:\minio\minio.exe" server C:\minio\data
+```
+Зайдите на сайт MinIO по адресу http://127.0.0.1:9000. <br>Используйте для входа учетные данные:
+-   RootUser: minioadmin
+-   RootPass: minioadmin
+
+На сайте создайте свой бакет, например `html-bucket`
+
+Установите алиас для mc (MinIO Client), например `myminio`
+```powershell
+mc alias set 'myminio' 'http://127.0.0.1:9000' 'myadmin' 'myadmin'
+```
+
+Сделайте бакет публичным используя команду
+```powershell
+mc anonymous set public myminio/html-bucket
+```
+Вручную загрузите в бакет файлы `index.html` и `index.png`.
+Это позволяет использовать ссылки на файлы в бакете при реализации эндпоинтов
+
+
+## Как запустить Gotenberg
+
+Чтобы запустить стандартный Docker-контейнер Gotenberg, выполните команду:
+```commandline
+docker run --rm -p "127.0.0.1:3000:3000" gotenberg/gotenberg:8
+```
+
+## Как развернуть фронтенд локально
+
+В папке `src` создайте папку `frontend`.
+Скачайте и распакуйте в нее [архив с фронтендом](https://dvmn.org/filer/canonical/1750917110/1035/)
+
+В папке `frontend` создайте файл `frontend-settings.json` и добавьте в него настройки
+```
+{
+    "backendBaseUrl": "/frontend-api"
+}
+```
+
+
 ## Как вести разработку
 
 Код проекта находится в папке `/src`.
