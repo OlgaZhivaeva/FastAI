@@ -11,5 +11,5 @@ users_router = APIRouter(prefix="/frontend-api/users", tags=["Users"])
     response_description="Данные пользователя",
     response_model=UserDetailsResponse,
 )
-async def _get_user():
+async def get_user():
     return mock_get_user()
