@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Request
 from starlette.responses import HTMLResponse
 
-from src.sites.create_site import CreateSiteRequest, mock_create_site
-from src.sites.generate_html import SiteGenerationRequest, generate_html_stream
-from src.sites.get_site import SiteResponse, mock_get_site
-from src.sites.get_user_sites import GeneratedSitesResponse, mock_get_user_sites
+from .schemas import CreateSiteRequest, GeneratedSitesResponse, SiteGenerationRequest, SiteResponse
+from .service import generate_html_stream, mock_create_site, mock_get_site, mock_get_user_sites
 
 sites_router = APIRouter(prefix="/frontend-api/sites", tags=["Sites"])
 

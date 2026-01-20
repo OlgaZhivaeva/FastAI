@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
-from src.users.get_user import UserDetailsResponse, mock_get_user
+from .schemas import UserDetailsResponse
+from .service import mock_get_user
 
 users_router = APIRouter(prefix="/frontend-api/users", tags=["Users"])
 

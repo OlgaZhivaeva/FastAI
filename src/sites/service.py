@@ -3,12 +3,16 @@ from collections.abc import AsyncGenerator
 
 import anyio
 import httpx
-from fastapi import HTTPException, status
+from fastapi import HTTPException, Request, status
 from furl import furl
 from gotenberg_api import GotenbergServerError, ScreenshotHTMLRequest
 from html_page_generator import AsyncPageGenerator
+from starlette.responses import StreamingResponse
 
+from src.reuseble_types import SITE_EXAMPLE
 from src.settings import S3, Gotenberg
+
+from .schemas import CreateSiteRequest, SiteGenerationRequest
 
 logger = logging.getLogger(__name__)
 
@@ -113,3 +117,59 @@ def generate_s3_url(site_id: int, s3_settings: S3, file_name: str = None, dispos
         url.args['response-content-disposition'] = disposition
 
     return str(url)
+
+
+def mock_create_site(request: CreateSiteRequest):
+    """post /frontend-api/sites/create"""
+    return {
+        **SITE_EXAMPLE,
+        "prompt": request.prompt,
+        "title": request.title,
+    }
+
+
+def mock_get_site(site_id: int, http_request: Request):
+    """get /frontend-api/sites/{site_id}"""
+    s3_settings = http_request.app.state.settings.s3
+
+    return {
+        **SITE_EXAMPLE,
+        "html_code_download_url": generate_s3_url(site_id, s3_settings, disposition="attachment"),
+        "html_code_url": generate_s3_url(site_id, s3_settings),
+        "id": site_id,
+        "screenshot_url": generate_s3_url(site_id, s3_settings, file_name="index.png", disposition="inline"),
+    }
+
+
+def mock_get_user_sites(http_request: Request):
+    """get /frontend-api/sites/my"""
+    s3_settings = http_request.app.state.settings.s3
+    site_id = 1
+    return {
+        "sites":
+        [
+            {
+                **SITE_EXAMPLE,
+                "html_code_download_url": generate_s3_url(site_id, s3_settings, disposition="attachment"),
+                "html_code_url": generate_s3_url(site_id, s3_settings, disposition="inline"),
+                "screenshot_url": generate_s3_url(site_id, s3_settings, file_name="index.png"),
+            },
+        ],
+    }
+
+
+async def generate_html_stream(
+    site_id: int,
+    request: SiteGenerationRequest,
+    http_request: Request,
+) -> StreamingResponse:
+    """post /frontend-api/sites/{site_id}/generate"""
+
+    return StreamingResponse(
+        generate_html_content(
+            site_id=site_id,
+            user_prompt=request.prompt,
+            app_state=http_request.app.state,
+        ),
+        media_type='text/html',
+    )
