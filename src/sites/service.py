@@ -1,16 +1,19 @@
 import logging
 from collections.abc import AsyncGenerator
+from typing import Annotated
 
 import anyio
+import boto3
 import httpx
-from fastapi import HTTPException, Request, status
+from fastapi import Depends, HTTPException, status
 from furl import furl
 from gotenberg_api import GotenbergServerError, ScreenshotHTMLRequest
 from html_page_generator import AsyncPageGenerator
 from starlette.responses import StreamingResponse
 
+from src.dependencies import get_gotenberg_client, get_s3_client, get_settings
 from src.reuseble_types import SITE_EXAMPLE
-from src.settings import S3, Gotenberg
+from src.settings import S3, AppSettings, Gotenberg
 
 from .schemas import CreateSiteRequest, SiteGenerationRequest
 
@@ -55,16 +58,13 @@ async def upload_to_s3(
 async def generate_html_content(
     site_id: int,
     user_prompt: str,
-    app_state: any,
+    s3_client: Annotated[boto3.client, Depends(get_s3_client)],
+    gotenberg_client: Annotated[httpx.AsyncClient, Depends(get_gotenberg_client)],
+    settings: Annotated[AppSettings, Depends(get_settings)],
 ) -> AsyncGenerator[str]:
     """Сгенерировать HTML контент по промпту пользователя"""
-    s3_client = app_state.s3_client
-    s3_settings = app_state.settings.s3
-    gotenberg_client = app_state.gotenberg_client
-    gotenberg_settings = app_state.settings.gotenberg
-    debug_mode = app_state.settings.debug_mode
     try:
-        generator = AsyncPageGenerator(debug_mode=debug_mode)
+        generator = AsyncPageGenerator(debug_mode=settings.debug_mode)
 
         with anyio.CancelScope(shield=True):
             title_saved = False
@@ -78,21 +78,21 @@ async def generate_html_content(
             html_content = generator.html_page.html_code
             await upload_to_s3(
                 body=html_content,
-                key=f"{site_id}/{s3_settings.key}",
+                key=f"{site_id}/{settings.s3.key}",
                 content_type="text/html",
                 content_disposition="attachment",
                 s3_client=s3_client,
-                s3_settings=s3_settings,
+                s3_settings=settings.s3,
             )
 
-            screenshot = await get_screenshot(html_content, gotenberg_client, gotenberg_settings)
+            screenshot = await get_screenshot(html_content, gotenberg_client, settings.gotenberg)
             await upload_to_s3(
                 body=screenshot,
                 key=f"/{site_id}/index.png",
                 content_type="image/png",
                 content_disposition="attachment",
                 s3_client=s3_client,
-                s3_settings=s3_settings,
+                s3_settings=settings.s3,
             )
     except (httpx.ReadTimeout, httpx.ConnectTimeout, httpx.TimeoutException, httpx.HTTPStatusError) as err:
         logger.error(f"Ошибка при генерации HTML: {err}", exc_info=True)
@@ -108,7 +108,12 @@ async def generate_html_content(
         )
 
 
-def generate_s3_url(site_id: int, s3_settings: S3, file_name: str = None, disposition: str = None) -> str:
+def generate_s3_url(
+    site_id: int,
+    s3_settings: S3,
+    file_name: str = None,
+    disposition: str = None,
+) -> str:
     url = furl(s3_settings.endpoint_url)
     key = f"{site_id}/{file_name}" if file_name else f"{site_id}/{s3_settings.key}"
     url.path = f"/{s3_settings.bucket}/{key}"
@@ -128,31 +133,32 @@ def mock_create_site(request: CreateSiteRequest):
     }
 
 
-def mock_get_site(site_id: int, http_request: Request):
+def mock_get_site(
+    site_id: int,
+    settings: Annotated[AppSettings, Depends(get_settings)],
+):
     """get /frontend-api/sites/{site_id}"""
-    s3_settings = http_request.app.state.settings.s3
 
     return {
         **SITE_EXAMPLE,
-        "html_code_download_url": generate_s3_url(site_id, s3_settings, disposition="attachment"),
-        "html_code_url": generate_s3_url(site_id, s3_settings),
+        "html_code_download_url": generate_s3_url(site_id, settings.s3, disposition="attachment"),
+        "html_code_url": generate_s3_url(site_id, settings.s3),
         "id": site_id,
-        "screenshot_url": generate_s3_url(site_id, s3_settings, file_name="index.png", disposition="inline"),
+        "screenshot_url": generate_s3_url(site_id, settings.s3, file_name="index.png", disposition="inline"),
     }
 
 
-def mock_get_user_sites(http_request: Request):
+def mock_get_user_sites(settings: Annotated[AppSettings, Depends(get_settings)]):
     """get /frontend-api/sites/my"""
-    s3_settings = http_request.app.state.settings.s3
     site_id = 1
     return {
         "sites":
         [
             {
                 **SITE_EXAMPLE,
-                "html_code_download_url": generate_s3_url(site_id, s3_settings, disposition="attachment"),
-                "html_code_url": generate_s3_url(site_id, s3_settings, disposition="inline"),
-                "screenshot_url": generate_s3_url(site_id, s3_settings, file_name="index.png"),
+                "html_code_download_url": generate_s3_url(site_id, settings.s3, disposition="attachment"),
+                "html_code_url": generate_s3_url(site_id, settings.s3, disposition="inline"),
+                "screenshot_url": generate_s3_url(site_id, settings.s3, file_name="index.png"),
             },
         ],
     }
@@ -161,7 +167,9 @@ def mock_get_user_sites(http_request: Request):
 async def generate_html_stream(
     site_id: int,
     request: SiteGenerationRequest,
-    http_request: Request,
+    s3_client: Annotated[boto3.client, Depends(get_s3_client)],
+    gotenberg_client: Annotated[httpx.AsyncClient, Depends(get_gotenberg_client)],
+    settings: Annotated[AppSettings, Depends(get_settings)],
 ) -> StreamingResponse:
     """post /frontend-api/sites/{site_id}/generate"""
 
@@ -169,7 +177,9 @@ async def generate_html_stream(
         generate_html_content(
             site_id=site_id,
             user_prompt=request.prompt,
-            app_state=http_request.app.state,
+            s3_client=s3_client,
+            gotenberg_client=gotenberg_client,
+            settings=settings,
         ),
         media_type='text/html',
     )

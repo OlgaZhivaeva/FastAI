@@ -1,5 +1,12 @@
-from fastapi import APIRouter, Request
-from starlette.responses import HTMLResponse
+from typing import Annotated
+
+import boto3
+import httpx
+from fastapi import APIRouter, Depends
+from starlette.responses import HTMLResponse, StreamingResponse
+
+from src.dependencies import get_gotenberg_client, get_s3_client, get_settings
+from src.settings import AppSettings
 
 from .schemas import CreateSiteRequest, GeneratedSitesResponse, SiteGenerationRequest, SiteResponse
 from .service import generate_html_stream, mock_create_site, mock_get_site, mock_get_user_sites
@@ -13,8 +20,8 @@ sites_router = APIRouter(prefix="/frontend-api/sites", tags=["Sites"])
     response_description="Сайты пользователя",
     response_model=GeneratedSitesResponse,
 )
-async def get_user_sites(http_request: Request):
-    return mock_get_user_sites(http_request)
+async def get_user_sites(settings: Annotated[AppSettings, Depends(get_settings)]):
+    return mock_get_user_sites(settings)
 
 
 @sites_router.get(
@@ -23,8 +30,11 @@ async def get_user_sites(http_request: Request):
     response_description="Данные сайта",
     response_model=SiteResponse,
 )
-async def get_site(site_id: int, http_request: Request):
-    return mock_get_site(site_id, http_request)
+async def get_site(
+    site_id: int,
+    settings: Annotated[AppSettings, Depends(get_settings)],
+):
+    return mock_get_site(site_id, settings)
 
 
 @sites_router.post(
@@ -43,5 +53,17 @@ async def create_site(request: CreateSiteRequest):
     response_description="HTML код сайта",
     response_class=HTMLResponse,
 )
-async def generate_html(site_id: int, request: SiteGenerationRequest, http_request: Request):
-    return await generate_html_stream(site_id, request, http_request)
+async def generate_html(
+    site_id: int,
+    request: SiteGenerationRequest,
+    s3_client: Annotated[boto3.client, Depends(get_s3_client)],
+    gotenberg_client: Annotated[httpx.AsyncClient, Depends(get_gotenberg_client)],
+    settings: Annotated[AppSettings, Depends(get_settings)],
+) -> StreamingResponse:
+    return await generate_html_stream(
+        site_id,
+        request,
+        s3_client,
+        gotenberg_client,
+        settings,
+    )
