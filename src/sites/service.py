@@ -6,53 +6,19 @@ import anyio
 import boto3
 import httpx
 from fastapi import Depends, HTTPException, status
-from furl import furl
-from gotenberg_api import GotenbergServerError, ScreenshotHTMLRequest
+from gotenberg_api import GotenbergServerError
 from html_page_generator import AsyncPageGenerator
 from starlette.responses import StreamingResponse
 
+from src.clients.gotenberg import get_screenshot
+from src.clients.s3 import generate_s3_url, upload_to_s3
 from src.dependencies import get_gotenberg_client, get_s3_client, get_settings
 from src.reuseble_types import SITE_EXAMPLE
-from src.settings import S3, AppSettings, Gotenberg
+from src.settings import AppSettings
 
 from .schemas import CreateSiteRequest, SiteGenerationRequest
 
 logger = logging.getLogger(__name__)
-
-
-async def get_screenshot(
-    html_content: str,
-    gotenberg_client: httpx.AsyncClient,
-    gotenberg_settings: Gotenberg,
-) -> bytes:
-    """Сгенерировать скриншот из HTML контента, используя Gotenberg."""
-    screenshot_bytes = await ScreenshotHTMLRequest(
-        index_html=html_content,
-        width=gotenberg_settings.width,
-        format=gotenberg_settings.format,
-        wait_delay=gotenberg_settings.wait_delay,
-    ).asend(gotenberg_client)
-
-    return screenshot_bytes
-
-
-async def upload_to_s3(
-    body: bytes | str,
-    key: str,
-    content_type: str,
-    content_disposition: str,
-    s3_client: any,
-    s3_settings: S3,
-) -> None:
-    """Загрузить данные в MinIO S3 хранилище."""
-    upload_params = {
-        'Bucket': s3_settings.bucket,
-        'Key': key,
-        'Body': body,
-        'ContentType': content_type,
-        'ContentDisposition': content_disposition,
-    }
-    await s3_client.put_object(**upload_params)
 
 
 async def generate_html_content(
@@ -106,22 +72,6 @@ async def generate_html_content(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Ошибка при генерации скриншота.",
         )
-
-
-def generate_s3_url(
-    site_id: int,
-    s3_settings: S3,
-    file_name: str = None,
-    disposition: str = None,
-) -> str:
-    url = furl(s3_settings.endpoint_url)
-    key = f"{site_id}/{file_name}" if file_name else f"{site_id}/{s3_settings.key}"
-    url.path = f"/{s3_settings.bucket}/{key}"
-
-    if disposition:
-        url.args['response-content-disposition'] = disposition
-
-    return str(url)
 
 
 def mock_create_site(request: CreateSiteRequest):
