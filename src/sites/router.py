@@ -2,12 +2,13 @@ from typing import Annotated
 
 import boto3
 import httpx
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from starlette.responses import HTMLResponse, StreamingResponse
 
 from src.dependencies import get_gotenberg_client, get_s3_client, get_settings
 from src.settings import AppSettings
 
+from .exceptions import ScreenshotGenerationException, ServiceUnavailableException
 from .schemas import CreateSiteRequest, GeneratedSitesResponse, SiteGenerationRequest, SiteResponse
 from .service import generate_html_stream, mock_create_site, mock_get_site, mock_get_user_sites
 
@@ -60,10 +61,21 @@ async def generate_html(
     gotenberg_client: Annotated[httpx.AsyncClient, Depends(get_gotenberg_client)],
     settings: Annotated[AppSettings, Depends(get_settings)],
 ) -> StreamingResponse:
-    return await generate_html_stream(
-        site_id,
-        request,
-        s3_client,
-        gotenberg_client,
-        settings,
-    )
+    try:
+        return await generate_html_stream(
+            site_id,
+            request,
+            s3_client,
+            gotenberg_client,
+            settings,
+        )
+    except ServiceUnavailableException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        )
+    except ScreenshotGenerationException as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(exc),
+        )

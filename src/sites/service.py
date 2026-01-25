@@ -1,21 +1,19 @@
 import logging
 from collections.abc import AsyncGenerator
-from typing import Annotated
 
 import anyio
 import boto3
 import httpx
-from fastapi import Depends, HTTPException, status
 from gotenberg_api import GotenbergServerError
 from html_page_generator import AsyncPageGenerator
 from starlette.responses import StreamingResponse
 
 from src.clients.gotenberg import get_screenshot
 from src.clients.s3 import generate_s3_url, upload_to_s3
-from src.dependencies import get_gotenberg_client, get_s3_client, get_settings
 from src.reuseble_types import SITE_EXAMPLE
 from src.settings import AppSettings
 
+from .exceptions import ScreenshotGenerationException, ServiceUnavailableException
 from .schemas import CreateSiteRequest, SiteGenerationRequest
 
 logger = logging.getLogger(__name__)
@@ -24,9 +22,9 @@ logger = logging.getLogger(__name__)
 async def generate_html_content(
     site_id: int,
     user_prompt: str,
-    s3_client: Annotated[boto3.client, Depends(get_s3_client)],
-    gotenberg_client: Annotated[httpx.AsyncClient, Depends(get_gotenberg_client)],
-    settings: Annotated[AppSettings, Depends(get_settings)],
+    s3_client: boto3.client,
+    gotenberg_client: httpx.AsyncClient,
+    settings: AppSettings,
 ) -> AsyncGenerator[str]:
     """Сгенерировать HTML контент по промпту пользователя"""
     try:
@@ -61,16 +59,16 @@ async def generate_html_content(
                 s3_settings=settings.s3,
             )
     except (httpx.ReadTimeout, httpx.ConnectTimeout, httpx.TimeoutException, httpx.HTTPStatusError) as err:
-        logger.error(f"Ошибка при генерации HTML: {err}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Сервис временно недоступен. Попробуйте позже.",
+        logger.error(f"Ошибка при генерации HTML для сайта {site_id}: {err}", exc_info=True)
+        raise ServiceUnavailableException(
+            message="Сервис временно недоступен. Попробуйте позже.",
+            site_id=site_id,
         )
     except GotenbergServerError as err:
-        logger.error(f"Ошибка при генерации скриншота: {err}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Ошибка при генерации скриншота.",
+        logger.error(f"Ошибка при генерации скриншота для сайта {site_id}: {err}", exc_info=True)
+        raise ScreenshotGenerationException(
+            message="Не удалось сгенерировать скриншот",
+            site_id=site_id,
         )
 
 
@@ -85,7 +83,7 @@ def mock_create_site(request: CreateSiteRequest):
 
 def mock_get_site(
     site_id: int,
-    settings: Annotated[AppSettings, Depends(get_settings)],
+    settings: AppSettings,
 ):
     """get /frontend-api/sites/{site_id}"""
 
@@ -98,7 +96,7 @@ def mock_get_site(
     }
 
 
-def mock_get_user_sites(settings: Annotated[AppSettings, Depends(get_settings)]):
+def mock_get_user_sites(settings: AppSettings):
     """get /frontend-api/sites/my"""
     site_id = 1
     return {
@@ -117,9 +115,9 @@ def mock_get_user_sites(settings: Annotated[AppSettings, Depends(get_settings)])
 async def generate_html_stream(
     site_id: int,
     request: SiteGenerationRequest,
-    s3_client: Annotated[boto3.client, Depends(get_s3_client)],
-    gotenberg_client: Annotated[httpx.AsyncClient, Depends(get_gotenberg_client)],
-    settings: Annotated[AppSettings, Depends(get_settings)],
+    s3_client: boto3.client,
+    gotenberg_client: httpx.AsyncClient,
+    settings: AppSettings,
 ) -> StreamingResponse:
     """post /frontend-api/sites/{site_id}/generate"""
 
