@@ -25,7 +25,7 @@ async def generate_html_content(
     gotenberg_client: httpx.AsyncClient,
     settings: AppSettings,
 ) -> AsyncGenerator[str]:
-    """Сгенерировать HTML контент по промпту пользователя"""
+    """Сгенерировать HTML контент по промпту пользователя."""
     try:
         generator = AsyncPageGenerator(debug_mode=settings.debug_mode)
 
@@ -72,7 +72,7 @@ async def generate_html_content(
 
 
 def mock_create_site(request: CreateSiteRequest):
-    """post /frontend-api/sites/create"""
+    """Создать мок сайта."""
     return {
         **SITE_EXAMPLE,
         "prompt": request.prompt,
@@ -84,7 +84,7 @@ def mock_get_site(
     site_id: int,
     settings: AppSettings,
 ):
-    """get /frontend-api/sites/{site_id}"""
+    """Получить мок сайта."""
 
     return {
         **SITE_EXAMPLE,
@@ -96,7 +96,7 @@ def mock_get_site(
 
 
 def mock_get_user_sites(settings: AppSettings):
-    """get /frontend-api/sites/my"""
+    """Получить мок сайтов пользователя."""
     site_id = 1
     return {
         "sites":
