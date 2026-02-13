@@ -10,7 +10,7 @@ from src.settings import AppSettings
 
 from .exceptions import ScreenshotGenerationException, ServiceUnavailableException
 from .schemas import CreateSiteRequest, GeneratedSitesResponse, SiteGenerationRequest, SiteResponse
-from .service import generate_html_stream, mock_create_site, mock_get_site, mock_get_user_sites
+from .service import generate_html_content, mock_create_site, mock_get_site, mock_get_user_sites
 
 sites_router = APIRouter(prefix="/frontend-api/sites", tags=["Sites"])
 
@@ -62,12 +62,15 @@ async def generate_html(
     settings: Annotated[AppSettings, Depends(get_settings)],
 ) -> StreamingResponse:
     try:
-        return await generate_html_stream(
-            site_id,
-            request,
-            s3_client,
-            gotenberg_client,
-            settings,
+        return StreamingResponse(
+            generate_html_content(
+                site_id=site_id,
+                user_prompt=request.prompt,
+                s3_client=s3_client,
+                gotenberg_client=gotenberg_client,
+                settings=settings,
+            ),
+            media_type='text/html',
         )
     except ServiceUnavailableException as exc:
         raise HTTPException(

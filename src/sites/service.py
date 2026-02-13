@@ -6,7 +6,6 @@ import boto3
 import httpx
 from gotenberg_api import GotenbergServerError
 from html_page_generator import AsyncPageGenerator
-from starlette.responses import StreamingResponse
 
 from src.clients.gotenberg import get_screenshot
 from src.clients.s3 import generate_s3_url, upload_to_s3
@@ -14,7 +13,7 @@ from src.reuseble_types import SITE_EXAMPLE
 from src.settings import AppSettings
 
 from .exceptions import ScreenshotGenerationException, ServiceUnavailableException
-from .schemas import CreateSiteRequest, SiteGenerationRequest
+from .schemas import CreateSiteRequest
 
 logger = logging.getLogger(__name__)
 
@@ -110,24 +109,3 @@ def mock_get_user_sites(settings: AppSettings):
             },
         ],
     }
-
-
-async def generate_html_stream(
-    site_id: int,
-    request: SiteGenerationRequest,
-    s3_client: boto3.client,
-    gotenberg_client: httpx.AsyncClient,
-    settings: AppSettings,
-) -> StreamingResponse:
-    """post /frontend-api/sites/{site_id}/generate"""
-
-    return StreamingResponse(
-        generate_html_content(
-            site_id=site_id,
-            user_prompt=request.prompt,
-            s3_client=s3_client,
-            gotenberg_client=gotenberg_client,
-            settings=settings,
-        ),
-        media_type='text/html',
-    )

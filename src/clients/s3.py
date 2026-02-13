@@ -28,6 +28,7 @@ def generate_s3_url(
     file_name: str = None,
     disposition: str = None,
 ) -> str:
+    """Сгенерировать URL-адрес для доступа к файлу в S3-хранилище"""
     url = furl(s3_settings.endpoint_url)
     key = f"{site_id}/{file_name}" if file_name else f"{site_id}/{s3_settings.key}"
     url.path = f"/{s3_settings.bucket}/{key}"
